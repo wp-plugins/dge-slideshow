@@ -80,13 +80,25 @@ function DGE_SlideShow_contentFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!DGE_SlideShow!([^!]+)!([^!]+)!([0-9]+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!DGE_SlideShow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
 	$find[] = "^" . $val[0] . "^";
-	if ($val[3] != '') $timeout = intval($val[3]);
-	else $timeout = 30;
+	$timeout = 30;
+	if ($val[3] != '')
+	{
+	    foreach (explode(";", $val[3]) as $param)
+	    {
+		list($arg,$v) = explode("=", $param);
+		switch (strtolower($arg))
+		{
+		case "timeout":
+		    $timeout = intval($v);
+		    break;
+		}
+	    }
+	}
 	$replace[] = DGE_SlideShow_format($val[1], $val[2], $timeout);
     }
     return preg_replace($find, $replace, $content);
