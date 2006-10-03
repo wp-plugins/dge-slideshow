@@ -17,22 +17,27 @@
 	<xsl:apply-templates select="channel" />
  </xsl:template>
 
+ <xsl:template match="item" mode="jsitem">
+   <xsl:if test="not($limit) or position()&lt;=$limit">
+       <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="link"/>", "<xsl:value-of select="media:content/@url"/>", "<xsl:value-of select="media:content/@width"/>", "<xsl:value-of select="media:content/@height"/>"));
+   </xsl:if>
+ </xsl:template>
+
+ <xsl:template match="item" mode="thumbs">
+   <xsl:if test="not($limit) or position()&lt;=$limit">
+     <li><img src="{media:thumbnail/@url}" alt="{title} by {media:credit}" title="{title} by {media:credit}" onclick="{$ssid}.select({position()-1})" /></li>
+   </xsl:if>
+ </xsl:template>
+
  <xsl:template match="channel">
    <script language="javascript">
      var <xsl:value-of select="$ssid"/> = new DGE_SlideShow();
-     <xsl:for-each select="item"><xsl:if test="not($limit) or position()&lt;=$limit">
-     <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="link"/>", "<xsl:value-of select="media:content/@url"/>", "<xsl:value-of select="media:content/@width"/>", "<xsl:value-of select="media:content/@height"/>"));
-     </xsl:if>
-     </xsl:for-each>
+     <xsl:apply-templates mode="jsitem" select="item" />
    </script>
    <div class="dge-slideshow" id="{$ssid}">
      <div class="display"><div class="imgwrap"><a href=""><img src="" /></a></div></div>
      <div class="thumbnails"><ul>
-     <xsl:for-each select="item">
-       <xsl:if test="not($limit) or position()&lt;=$limit">
-         <li><img src="{media:thumbnail/@url}" alt="{title} by {media:credit}" title="{title} by {media:credit}" onclick="{$ssid}.select({position()-1})" /></li>
-       </xsl:if>
-     </xsl:for-each>
+     <xsl:apply-templates mode="thumbs" select="item" />
      </ul></div>
    </div>
    <script language="javascript"><xsl:value-of select="$ssid"/>.attach(document.getElementById("<xsl:value-of select="$ssid"/>"));</script>
