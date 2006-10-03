@@ -8,19 +8,33 @@ Author: Dave Elcock
 Author URI: http://dave.stufftoread.net/
 */
 
-function DGE_SlideShow_format($ssid, $url, $timeout=30)
+function DGE_SlideShow_format($ssid, $url, $params=array())
 {
     // Oh bugger, these are just cut-and-pasted from inlineRSS.php.
     // It'd be better if there was some interface to ask inlineRSS
     // what its settings were.
-    $path = 'wp-content/plugins/';   // Where to look for all config files
     $paramfile = 'inlineRSS.txt';    // Configuration file of feeds
     $fileprefix = 'in_';             // What feed casual names get prefixed with
 	
     // Some other variables.
+    $xsltParams = array();
+    $xsltParams['ssid'] = $ssid;
     $inlineRSSname = "dge-slideshow-".$ssid;
     $cachefile = ABSPATH . "wp-content/" . $fileprefix . $inlineRSSname . ".html";
 
+    // And some more - grab them out of $params
+    if (array_key_exists('timeout', $params))
+	$timeout = intval($params['timeout']);
+    else
+	$timeout = 60;
+    if (array_key_exists('reverse', $params))
+	$xsltFile = "dge-slideshow/reverse.xslt";
+    else
+	$xsltFile = "dge-slideshow/forward.xslt";
+    if (array_key_exists('limit', $params))
+	$xsltParams['limit'] = $params['limit'];
+
+    // Look for an existing cache and find out how old it is
     if ( file_exists($cachefile))
     {
 	$age = time() - filectime($cachefile);
@@ -32,13 +46,13 @@ function DGE_SlideShow_format($ssid, $url, $timeout=30)
 	$exists = FALSE;
     }
 
+    // If there's no file, or the existing one's old, run through
+    // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
-    {   // If there's no file, or it's old
-	$params = array('ssid'=>$ssid);
+    {
 	$inlineRSSout = inlineRSSparserWithParams(
 		$inlineRSSname, $url, 1,
-		"dge-slideshow/dge-slideshow.xslt",
-		$params);
+		$xsltFile, $params);
         if (empty($inlineRSSout))
 	{
 	    if ($exists == FALSE)
@@ -80,34 +94,31 @@ function DGE_SlideShow_contentFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!DGE_SlideShow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!DGE_SlideShow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
-	$find[] = "^" . $val[0] . "^";
-	$timeout = 30;
+	$find[] = "^$val[0]^";
+	$params = array();
 	if ($val[3] != '')
 	{
-	    foreach (explode(";", $val[3]) as $param)
+	    // knock off trailing '!'
+	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
+	    foreach (explode("!", $val[3]) as $param)
 	    {
 		list($arg,$v) = explode("=", $param);
-		switch (strtolower($arg))
-		{
-		case "timeout":
-		    $timeout = intval($v);
-		    break;
-		}
+		$params[$arg] = $v;
 	    }
 	}
-	$replace[] = DGE_SlideShow_format($val[1], $val[2], $timeout);
+	$replace[] = DGE_SlideShow_format($val[1], $val[2], $params);
     }
     return preg_replace($find, $replace, $content);
 }
 
 // This is for the php template-calling support:
-function DGE_SlideShow($ssid, $url, $timeout=30)
+function DGE_SlideShow($ssid, $url, $params=array())
 {
-    echo DGE_SlideShow_format($ssid, $url, $timeout);
+    echo DGE_SlideShow_format($ssid, $url, $params);
 }
 
 function DGE_SlideShow_insertHeader()
