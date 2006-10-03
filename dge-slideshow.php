@@ -8,6 +8,9 @@ Author: Dave Elcock
 Author URI: http://dave.stufftoread.net/
 */
 
+// This is the main slideshow function that does the real work. See
+// DGE_SlideShow_contentFilter() below for what to put in the $params
+// array.
 function DGE_SlideShow_format($ssid, $url, $params=array())
 {
     // Oh bugger, these are just cut-and-pasted from inlineRSS.php.
@@ -86,15 +89,32 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     return $output;
 }
 
-// This is a Wordpress content filter that replaces calls to inlineRSS
-// Any entries like !DGE_SlideShow!id!url! will be replaced
+// This is a Wordpress content filter that replaces occurrences of the
+// following format:
+//
+//  !slideshow!<id>!<url>[!<option>!<option>...]!
+//
 // with the rss feed reformatted for the slideshow javascript.
+// 
+// Parameters:
+//  <id>   Required field. Must be unique for each different
+//         slideshow.
+//  <url>  Required field. The url of the image feed.
+//  limit=<number>
+//         Optional field. Limits the number of images
+//         displayed. Default is 0, indicating no limit.
+//  reverse
+//         Optional field. Reverses the order of the images in the
+//         feed. Default is to not reverse the feed.
+//  timeout=<minutes>
+//         Optional field. The time in minutes before the cached html
+//         is refreshed. Default is 60 minutes.
 function DGE_SlideShow_contentFilter($content = '')
 {
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!DGE_SlideShow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
@@ -115,12 +135,20 @@ function DGE_SlideShow_contentFilter($content = '')
     return preg_replace($find, $replace, $content);
 }
 
-// This is for the php template-calling support:
+// This is for the php template-calling support. See the comments
+// above the content filter function for details of the possible
+// values for $params. Just use corresponding keys and values in
+// $params to get the same result, e.g.
+// 
+// DGE_SlideShow('ss1','http://blah.com/feed', array('limit'=>5));
+//
 function DGE_SlideShow($ssid, $url, $params=array())
 {
     echo DGE_SlideShow_format($ssid, $url, $params);
 }
 
+// This is a Wordpress action to insert the javascript and css into
+// the page header.
 function DGE_SlideShow_insertHeader()
 {
 	$path = '/wordpress/wp-content/plugins/dge-slideshow/';
@@ -133,7 +161,7 @@ function DGE_SlideShow_insertHeader()
 	echo "<!-- DGE_SlideShow end -->\n\n";
 }
 
-// This adds the filter and action to Wordpress.
+// These add the filter and action to Wordpress.
 add_filter('the_content', 'DGE_SlideShow_contentFilter');
 add_action('wp_head', 'DGE_SlideShow_insertHeader');
 
