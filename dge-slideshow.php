@@ -55,7 +55,7 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     {
 	$inlineRSSout = inlineRSSparserWithParams(
 		$inlineRSSname, $url, 1,
-		$xsltFile, $params);
+		$xsltFile, $xsltParams);
         if (empty($inlineRSSout))
 	{
 	    if ($exists == FALSE)
