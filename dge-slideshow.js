@@ -22,8 +22,8 @@ DGE_SlideShow.prototype.attach = function(node)
     this.imgwrap = this.display.getElementsByTagName('div').item(0);
     this.link = this.imgwrap.getElementsByTagName('a').item(0);
     this.image = this.link.getElementsByTagName('img').item(0);
-    this.displayWidth = parseFloat(getStyle(this.display, 'width'));
-    this.displayHeight = parseFloat(getStyle(this.display, 'height'));
+    this.displayWidth = parseFloat(DGE_getStyle(this.display, 'width'));
+    this.displayHeight = parseFloat(DGE_getStyle(this.display, 'height'));
     this.displayRatio = this.displayWidth/this.displayHeight;
 
     // Attach li elements to slides
@@ -137,15 +137,17 @@ DGE_Slide.prototype.attach = function(slideshow, liNode)
 
 DGE_Slide.prototype.revealThumb = function(selected)
 {
-    if (selected) this.node.firstChild.className='selected';
-    else this.node.firstChild.className='';
+    if (selected)
+        DGE_applyClass(this.node.firstChild, 'selected');
+    else
+        DGE_revokeClass(this.node.firstChild, 'selected');
     this.node.style.display='inline';
 }
 
 DGE_Slide.prototype.hideThumb = function()
 {
     this.node.style.display='none';
-    this.node.firstChild.className='';
+    DGE_revokeClass(this.node.firstChild, 'selected');
     this.image.onload = DGE_Slide.prototype.onImagePreload;
 }
 
@@ -154,12 +156,7 @@ DGE_Slide.prototype.preloadImage = function()
     if (!this.imageLoaded)
     {
 	this.image.onload = DGE_Slide.prototype.onImagePreload;
-	if (!this.imageLoading)
-	{
-	    // Kick off the loading
-	    this.imageLoading = true;
-	    this.image.src = this.imagesrc;
-	}
+	this.startLoading();
     }
 }
 
@@ -173,37 +170,48 @@ DGE_Slide.prototype.loadImage = function()
     else
     {
 	this.image.onload = DGE_Slide.prototype.onImageLoad;
-	// Kick off the loading if it's not already.
-	if (!this.imageLoading)
-	{
-	    this.imageLoading = true;
-	    this.image.src = this.imagesrc;
-	}
+	this.startLoading();
     }
+}
+
+DGE_Slide.prototype.startLoading = function()
+{
+    if (!this.imageLoading)
+    {
+	this.imageLoading = true;
+	this.image.src = this.imagesrc;
+	DGE_applyClass(this.node.firstChild, 'loading');
+    }
+}
+
+DGE_Slide.prototype.loadingFinished = function()
+{
+     this.imageLoading = false;
+     DGE_revokeClass(this.node.firstChild, 'loading');
 }
 
 DGE_Slide.prototype.onImagePreload = function()
 {
+    this.slide.loadingFinished();
     this.slide.imageLoaded = true;
-    this.slide.imageLoading = false;
 }
 
 DGE_Slide.prototype.onImageLoad = function()
 {
+    this.slide.loadingFinished();
     this.slide.imageLoaded = true;
-    this.slide.imageLoading = false;
     this.slide.slideshow.displaySlide(this.slide);
 }
 
 DGE_Slide.prototype.onImageError = function()
 {
-    this.slide.imageLoading = false;
+    this.slide.loadingFinished();
     this.slide.imageError = true;
 }
 
 DGE_Slide.prototype.onImageAbort = function()
 {
-    this.slide.imageLoading = false;
+    this.slide.loadingFinished();
     this.slide.imageAborted = true;
 }
 
@@ -211,7 +219,7 @@ DGE_Slide.prototype.onImageAbort = function()
 // cross-browser stuff
 // ----------------------------------------------------------------------
 
-function getStyle(el,styleProp)
+function DGE_getStyle(el,styleProp)
 {
     // Based on code at http://www.quirksmode.org/dom/getstyles.html
     if (el.currentStyle)
@@ -219,4 +227,26 @@ function getStyle(el,styleProp)
     else if (window.getComputedStyle)
 	var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
     return y;
+}
+
+function DGE_applyClass(el, class)
+{
+    if (el.className.length == 0)
+	el.className = class;
+    else
+	el.className += ' ' + class;
+}
+
+function DGE_revokeClass(el, class)
+{
+    var pos = el.className.indexOf(class);
+    if (pos >= 0)
+    {
+	// todo - this isn't robust enough. It could mangle other
+	// class names beginning with the supplied class, and also
+	// won't remove multiple appearances.
+	var result = el.className.substr(0, pos);
+	result += el.className.substr(pos+class.length);
+	el.className = result;
+    }
 }

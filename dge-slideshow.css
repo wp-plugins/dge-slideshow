@@ -23,8 +23,11 @@
 	width:75px;
 	height:75px;
 }
+.dge-slideshow li img.loading {
+	border-color:green;
+}
 .dge-slideshow li img.selected {
-	border:1px solid red;
+	border-color:red;
 }
 .dge-slideshow div {
 	margin:0 auto;
