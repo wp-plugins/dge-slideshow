@@ -24,7 +24,8 @@
 	height:75px;
 }
 .dge-slideshow li img.loading {
-	border-color:green;
+	opacity:0.5; /* Mozilla and Safari */
+	filter: alpha(opacity=50); /* I.E. */
 }
 .dge-slideshow li img.selected {
 	border-color:red;
