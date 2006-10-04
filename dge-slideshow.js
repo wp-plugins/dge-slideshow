@@ -229,24 +229,24 @@ function DGE_getStyle(el,styleProp)
     return y;
 }
 
-function DGE_applyClass(el, class)
+function DGE_applyClass(el, className)
 {
     if (el.className.length == 0)
-	el.className = class;
+	el.className = className;
     else
-	el.className += ' ' + class;
+	el.className += ' ' + className;
 }
 
-function DGE_revokeClass(el, class)
+function DGE_revokeClass(el, className)
 {
-    var pos = el.className.indexOf(class);
+    var pos = el.className.indexOf(className);
     if (pos >= 0)
     {
 	// todo - this isn't robust enough. It could mangle other
 	// class names beginning with the supplied class, and also
 	// won't remove multiple appearances.
 	var result = el.className.substr(0, pos);
-	result += el.className.substr(pos+class.length);
+	result += el.className.substr(pos+className.length);
 	el.className = result;
     }
 }
