@@ -135,6 +135,22 @@ function DGE_SlideShow_contentFilter($content = '')
     return preg_replace($find, $replace, $content);
 }
 
+// Filters out inline calls to the slideshow.
+function DGE_SlideShow_securityFilter($content = '')
+{
+    $find[] = "//";
+    $replace[] = "";
+
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
+
+    foreach ($matches as $val)
+    {
+	$find[] = "^$val[0]^";
+	$replace[] = "<!-- slideshow call removed -->";
+    }
+    return preg_replace($find, $replace, $content);
+}
+
 // This is for the php template-calling support. See the comments
 // above the content filter function for details of the possible
 // values for $params. Just use corresponding keys and values in
@@ -161,7 +177,11 @@ function DGE_SlideShow_insertHeader()
 	echo "<!-- DGE_SlideShow end -->\n\n";
 }
 
-// These add the filter and action to Wordpress.
+// These add the filters and action to Wordpress.
+add_filter('comment_author', 'DGE_SlideShow_securityFilter');
+add_filter('comment_email', 'DGE_SlideShow_securityFilter');
+add_filter('comment_text', 'DGE_SlideShow_securityFilter');
+add_filter('comment_url', 'DGE_SlideShow_securityFilter');
 add_filter('the_content', 'DGE_SlideShow_contentFilter');
 add_action('wp_head', 'DGE_SlideShow_insertHeader');
 
