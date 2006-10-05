@@ -194,14 +194,16 @@ function DGE_SlideShow($ssid, $url, $params=array())
 // the page header.
 function DGE_SlideShow_insertHeader()
 {
-	$path = '/wordpress/wp-content/plugins/dge-slideshow/';
-	echo "<!-- DGE_SlideShow -->\n";
+    $path = '/wordpress/wp-content/plugins/dge-slideshow/';
+    echo "\n<!-- DGE_SlideShow includes -->\n";
+    if (get_option('dge_ss_inc_css'))
+    {
 	echo '<link rel="stylesheet" href="'.$path.
-		'dge-slideshow.css" type="text/css" media="screen" />'.
-		"\n";
-	echo '<script type="text/javascript" src="'.$path.
-		'dge-slideshow.js"></script>'."\n";
-	echo "<!-- DGE_SlideShow end -->\n\n";
+	    'dge-slideshow.css" type="text/css" media="screen" />'.
+	    "\n";
+    }
+    echo '<script type="text/javascript" src="'.$path.
+	'dge-slideshow.js"></script>'."\n\n";
 }
 
 function DGE_SlideShow_admin()
@@ -214,10 +216,12 @@ function DGE_SlideShow_admin()
 
 function DGE_SlideShow_subpanel()
 {
+    // TODO - these need to go in an install function
     if (get_option('dge_ss_def_timeout') == '')
     {
-	// TODO - this needs to go in an install function
 	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'no');
+	add_option('dge_ss_inc_css', 1, 'Include CSS', 'no');
+	add_option('dge_ss_presets', array(), 'Presets', 'no');
 	echo "<div class=\"updated\"><p>Added initial defaults</p></div>\n";
     }
 
@@ -229,7 +233,7 @@ function DGE_SlideShow_subpanel()
     // ----------------------------------------------------------------
     if (isset($_POST['info_update']))
     {
-	echo '<div class="updated">';
+	$updateText = '';
 	// ------------------------------------------------------------
 	// DEFAULTS
 	// ------------------------------------------------------------
@@ -238,7 +242,7 @@ function DGE_SlideShow_subpanel()
 	    $timeout = $_POST['def_timeout'];
 	    if ($timeout == '')
 	    {
-		echo "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
+		$updateText .= "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
 	    }
 	    else
 	    {
@@ -246,10 +250,24 @@ function DGE_SlideShow_subpanel()
 		if ($timeout != get_option('dge_ss_def_timeout'))
 		{
 		    update_option('dge_ss_def_timeout', $timeout);
-		    echo "<p>Default timeout updated.</p>\n";
+		    $updateText .= "<p>Default timeout updated.</p>\n";
 		}
 	    }
 	}
+	if (isset($_POST['inc_css']))
+	{
+	    if (!get_option('dge_ss_inc_css'))
+	    {
+		update_option('dge_ss_inc_css', 1);
+		$updateText .= "<p>Including default CSS rules in header.</p>\n";
+	    }
+	}
+	else if (get_option('dge_ss_inc_css'))
+	{
+	    update_option('dge_ss_inc_css', 0);
+	    $updateText .= "<p>No longer including default CSS rules in header.</p>\n";
+	}
+
 	// ------------------------------------------------------------
 	// PRESETS
 	// ------------------------------------------------------------
@@ -261,12 +279,12 @@ function DGE_SlideShow_subpanel()
 	    $value = $_POST['pre_new_value'];
 	    if (array_key_exists($name, $presets))
 	    {
-		echo "<p><strong>New preset '$name' already exists. Not updated.</strong></p>\n";
+		$updateText .= "<p><strong>New preset '$name' already exists. Not updated.</strong></p>\n";
 	    }
 	    else
 	    {
 		$presets[$name] = DGE_SlideShow_explodeParams($value);
-		echo "<p>New preset '$name' added.</p>\n";
+		$updateText .= "<p>New preset '$name' added.</p>\n";
 		$updatepresets = 1;
 	    }
 	}
@@ -282,12 +300,12 @@ function DGE_SlideShow_subpanel()
 		if ($update == '')
 		{
 		    unset($presets[$name]);
-		    echo "<p>Preset '$name' removed.</p>\n";
+		    $updateText .= "<p>Preset '$name' removed.</p>\n";
 		}
 		else
 		{
 		    $presets[$name]=DGE_SlideShow_explodeParams($update);
-		    echo "<p>Preset '$name' updated.</p>\n";
+		    $updateText .= "<p>Preset '$name' updated.</p>\n";
 		}
 		$updatepresets = 1;
 	    }
@@ -297,7 +315,9 @@ function DGE_SlideShow_subpanel()
 	{
 	    update_option('dge_ss_presets', $presets);
 	}
-	echo '</div>';
+	// Output $updateText
+	if ($updateText != '')
+	    echo "<div class=\"updated\">\n$updateText</div>";
     }
 
     // ----------------------------------------------------------------
@@ -310,6 +330,7 @@ function DGE_SlideShow_subpanel()
     <fieldset name="defaults">
     <legend>Defaults</legend>
     <p>Timeout (mins) <input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></p>
+     <p>Include default CSS rules <input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></p>
     </fieldset>
     <fieldset name="presets">
       <legend>Presets</legend>
