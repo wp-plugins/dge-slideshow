@@ -82,7 +82,6 @@ DGE_SlideShow.prototype.select = function(slide)
 		s.node.firstChild.className = 'selected';
 		// make sure we don't wipe out loading class
 		if (s.imageLoading) s.node.firstChild.className += ' loading';
-		else s.preloadImage();
 	    }
 	    else
 	    {
@@ -90,7 +89,7 @@ DGE_SlideShow.prototype.select = function(slide)
 		else s.node.firstChild.className = 'after-selected';
 		// make sure we don't wipe out loading class
 		if (s.imageLoading) s.node.firstChild.className += ' loading';
-		else s.preloadImage();
+		s.preloadImage();
 	    }
 	    // Finally show it
 	    s.node.style.display='inline';
