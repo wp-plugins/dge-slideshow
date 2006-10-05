@@ -78,7 +78,12 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
 	    // This is a hack to replace the _m.jpg in the filenames
 	    // supplied in the feed with just .jpg. This is so that we
 	    // get a bigger, better quality image in the slideshow.
-	    $output = preg_replace('/_m\.jpg/', '.jpg', $inlineRSSout);
+	    // The _o.jpg filter cuts out loading of enormous original
+	    // photos from Flickr streams.
+	    if (get_option('dge_ss_mo_snip'))
+		$output = preg_replace('/_[mo]\.jpg/', '.jpg', $inlineRSSout);
+	    else
+		$output = $inlineRSSout;
 	    $writefile = TRUE;
         }
 
@@ -215,13 +220,32 @@ function DGE_SlideShow_admin()
     }
 }
 
+function DGE_SlideShow_posttoggle($postvar, $option, $onString, $offString)
+{
+    if (isset($_POST[$postvar]))
+    {
+	if (!get_option($option))
+	{
+	    update_option($option, 1);
+	    return $onString;
+	}
+    }
+    else if (get_option($option))
+    {
+	update_option($option, 0);
+	return $offString;
+    }
+    return '';
+}
+
 function DGE_SlideShow_subpanel()
 {
     // TODO - these need to go in an install function
     if (get_option('dge_ss_def_timeout') == '')
     {
-	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'no');
-	add_option('dge_ss_inc_css', 1, 'Include CSS', 'no');
+	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'yes');
+	add_option('dge_ss_inc_css', 1, 'Include CSS', 'yes');
+	add_option('dge_ss_mo_snip', 1, 'Standard image', 'no');
 	add_option('dge_ss_presets', array(), 'Presets', 'no');
 	echo "<div class=\"updated\"><p>Added initial defaults</p></div>\n";
     }
@@ -255,19 +279,16 @@ function DGE_SlideShow_subpanel()
 		}
 	    }
 	}
-	if (isset($_POST['inc_css']))
-	{
-	    if (!get_option('dge_ss_inc_css'))
-	    {
-		update_option('dge_ss_inc_css', 1);
-		$updateText .= "<p>Including default CSS rules in header.</p>\n";
-	    }
-	}
-	else if (get_option('dge_ss_inc_css'))
-	{
-	    update_option('dge_ss_inc_css', 0);
-	    $updateText .= "<p>No longer including default CSS rules in header.</p>\n";
-	}
+	// Include CSS in header toggled?
+	$updateText .= DGE_SlideShow_posttoggle(
+	    'inc_css', 'dge_ss_inc_css',
+	    "<p>Including default CSS rules in header.</p>\n",
+	    "<p>No longer including default CSS rules in header.</p>\n");
+	// Standard image size
+	$updateText .= DGE_SlideShow_posttoggle(
+	    'mo_snip', 'dge_ss_mo_snip',
+	    "<p>Using standard image size by default.</p>\n",
+	    "<p>Using feed's image size by default.</p>\n");
 
 	// ------------------------------------------------------------
 	// PRESETS
@@ -330,8 +351,11 @@ function DGE_SlideShow_subpanel()
     <h2>Slideshow Options</h2>
     <fieldset name="defaults">
     <legend>Defaults</legend>
-    <p>Timeout (mins) <input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></p>
-     <p>Include default CSS rules <input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></p>
+    <table>
+    <tr><td>Timeout (mins)</td><td><input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></td><td><i>The default time to wait before refreshing the feed cache.</i></td></tr>
+    <tr><td>Include CSS</td><td><input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></td><td><i>Includes default CSS rules in the header of each page.</i></td></tr>
+    <tr><td>Standard sizes</td><td><input type="checkbox" name="mo_snip" value="1"<?php if (get_option('dge_ss_mo_snip')) echo ' checked="true"'; ?>/></td><td><i>Tries to pick the standard size image (usuall max 500 in any dimension). Basically, it avoids loading of enormous images from Flickr feeds, or too small images from Zooomr feeds.</i></td></tr>
+    </table>
     </fieldset>
     <fieldset name="presets">
       <legend>Presets</legend>
