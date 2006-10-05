@@ -75,12 +75,25 @@ DGE_SlideShow.prototype.select = function(slide)
 	// Show all items in range, and start preloading
 	for (i=start; i<end; ++i)
 	{
-	    if (i==slide) this.slides[i].revealThumb(true);
+	    s = this.slides[i];
+	    // Apply relative position classes
+	    if (i==slide)
+	    {
+		s.node.firstChild.className = 'selected';
+		// make sure we don't wipe out loading class
+		if (s.imageLoading) s.node.firstChild.className += ' loading';
+		else s.preloadImage();
+	    }
 	    else
 	    {
-		this.slides[i].revealThumb(false);
-		this.slides[i].preloadImage();
+		if (i<slide) s.node.firstChild.className = 'before-selected';
+		else s.node.firstChild.className = 'after-selected';
+		// make sure we don't wipe out loading class
+		if (s.imageLoading) s.node.firstChild.className += ' loading';
+		else s.preloadImage();
 	    }
+	    // Finally show it
+	    s.node.style.display='inline';
 	}
     }
 }
@@ -135,19 +148,10 @@ DGE_Slide.prototype.attach = function(slideshow, liNode)
     this.node = liNode;
 }
 
-DGE_Slide.prototype.revealThumb = function(selected)
-{
-    if (selected)
-        DGE_applyClass(this.node.firstChild, 'selected');
-    else
-        DGE_revokeClass(this.node.firstChild, 'selected');
-    this.node.style.display='inline';
-}
-
 DGE_Slide.prototype.hideThumb = function()
 {
+    this.node.className='';
     this.node.style.display='none';
-    DGE_revokeClass(this.node.firstChild, 'selected');
     this.image.onload = DGE_Slide.prototype.onImagePreload;
 }
 
