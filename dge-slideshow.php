@@ -1,9 +1,9 @@
-<?PHP
+<?php
 /*
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/
 Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dave.stufftoread.net/2006/07/13/scratch-that-xslt-is-the-way-forward/">this modified version</a> of the <a href="http://www.iconophobia.com/wordpress/?page_id=55">inlineRSS</a> plugin.
-Version: 0.1
+Version: 0.2
 Author: Dave Elcock
 Author URI: http://dave.stufftoread.net/
 */
@@ -29,7 +29,7 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     if (array_key_exists('timeout', $params))
 	$timeout = intval($params['timeout']);
     else
-	$timeout = 60;
+	$timeout = get_option('dge_ss_def_timeout');
     if (array_key_exists('reverse', $params))
 	$xsltFile = "dge-slideshow/reverse.xslt";
     else
@@ -177,6 +177,51 @@ function DGE_SlideShow_insertHeader()
 	echo "<!-- DGE_SlideShow end -->\n\n";
 }
 
+function DGE_SlideShow_admin()
+{
+    if (function_exists('add_options_page'))
+    {
+	add_options_page('Slideshow Options', 'Slideshow', 8, basename(__FILE__), 'DGE_SlideShow_subpanel');
+    }
+}
+
+function DGE_SlideShow_subpanel()
+{
+    if (get_option('dge_ss_def_timeout') == '')
+    {
+	// TODO - this needs to go in an install function
+	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'no');
+	echo "<div class=\"updated\"><p>Added initial defaults</p></div>\n";
+    }
+
+    if (isset($_POST['info_update']))
+    {
+	echo '<div class="updated">';
+	if (isset($_POST['def_timeout']))
+	{
+	    $to = $_POST['def_timeout'];
+	    if ($to == '') echo "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
+	    else
+	    {
+		$to = intval($to);
+		update_option('dge_ss_def_timeout', $to);
+		echo "<p>Default timeout set to $to</p>\n";
+	    }
+	}
+	echo '</div>';
+    } ?>
+<div class="wrap">
+  <form method="post">
+    <h2>Slideshow Options</h2>
+    <p>Default timeout (mins) <input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></p>
+    <div class="submit">
+      <input type="submit" name="info_update" value="Update options &raquo;" />
+    </div>
+  </form>
+</div>
+<?php
+}
+
 // These add the filters and action to Wordpress.
 add_filter('comment_author', 'DGE_SlideShow_securityFilter');
 add_filter('comment_email', 'DGE_SlideShow_securityFilter');
@@ -184,5 +229,5 @@ add_filter('comment_text', 'DGE_SlideShow_securityFilter');
 add_filter('comment_url', 'DGE_SlideShow_securityFilter');
 add_filter('the_content', 'DGE_SlideShow_contentFilter');
 add_action('wp_head', 'DGE_SlideShow_insertHeader');
-
+add_action('admin_menu', 'DGE_SlideShow_admin');
 ?>
