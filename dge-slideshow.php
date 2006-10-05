@@ -25,7 +25,16 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     $inlineRSSname = "dge-slideshow-".$ssid;
     $cachefile = ABSPATH . "wp-content/" . $fileprefix . $inlineRSSname . ".html";
 
-    // And some more - grab them out of $params
+    // First up must be a check for a preset so that other parameters
+    // passed to this function can override the preset.
+    if (array_key_exists('preset', $params))
+    {
+	if (($presets = get_option('dge_ss_presets')) &&
+	    ($preset = $presets[$params['preset']]))
+	{
+	    $params = array_merge($preset, $params);
+	}
+    }
     if (array_key_exists('timeout', $params))
 	$timeout = intval($params['timeout']);
     else
@@ -89,10 +98,32 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     return $output;
 }
 
+function DGE_SlideShow_explodeParams($paramString)
+{
+    $params = array();
+    foreach (explode(';', $paramString) as $param)
+    {
+	list($arg,$v) = explode('=', $param);
+	$params[$arg] = $v;
+    }
+    return $params;
+}
+
+function DGE_SlideShow_implodeParams($params)
+{
+    $result = array();
+    foreach ($params as $key=>$val)
+    {
+	if ($val == '') $result[]=$key;
+	else $result[] = "$key=$val";
+    }
+    return implode(';', $result);
+}
+
 // This is a Wordpress content filter that replaces occurrences of the
 // following format:
 //
-//  !slideshow!<id>!<url>[!<option>!<option>...]!
+//  !slideshow!<id>!<url>[!<option>=<val>;<option>=<val>...]!
 //
 // with the rss feed reformatted for the slideshow javascript.
 // 
@@ -114,7 +145,7 @@ function DGE_SlideShow_contentFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!slideshow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
@@ -124,11 +155,7 @@ function DGE_SlideShow_contentFilter($content = '')
 	{
 	    // knock off trailing '!'
 	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
-	    foreach (explode("!", $val[3]) as $param)
-	    {
-		list($arg,$v) = explode("=", $param);
-		$params[$arg] = $v;
-	    }
+	    $params = DGE_SlideShow_explodeParams($val[3]);
 	}
 	$replace[] = DGE_SlideShow_format($val[1], $val[2], $params);
     }
@@ -141,7 +168,7 @@ function DGE_SlideShow_securityFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!slideshow!([^!]+)!([^!]+)!(.+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
@@ -194,26 +221,123 @@ function DGE_SlideShow_subpanel()
 	echo "<div class=\"updated\"><p>Added initial defaults</p></div>\n";
     }
 
+    $presets = get_option('dge_ss_presets');
+    if (!$presets) $presets = array();
+
+    // ----------------------------------------------------------------
+    // PARSE $_POST PARAMETERS
+    // ----------------------------------------------------------------
     if (isset($_POST['info_update']))
     {
 	echo '<div class="updated">';
+	// ------------------------------------------------------------
+	// DEFAULTS
+	// ------------------------------------------------------------
 	if (isset($_POST['def_timeout']))
 	{
-	    $to = $_POST['def_timeout'];
-	    if ($to == '') echo "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
+	    $timeout = $_POST['def_timeout'];
+	    if ($timeout == '')
+	    {
+		echo "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
+	    }
 	    else
 	    {
-		$to = intval($to);
-		update_option('dge_ss_def_timeout', $to);
-		echo "<p>Default timeout set to $to</p>\n";
+		$timeout = intval($timeout);
+		if ($timeout != get_option('dge_ss_def_timeout'))
+		{
+		    update_option('dge_ss_def_timeout', $timeout);
+		    echo "<p>Default timeout updated.</p>\n";
+		}
 	    }
 	}
+	// ------------------------------------------------------------
+	// PRESETS
+	// ------------------------------------------------------------
+	$updatepresets = 0;
+	// Check for new presets
+	if ($_POST['pre_new_name']!='' && $_POST['pre_new_value']!='')
+	{
+	    $name = $_POST['pre_new_name'];
+	    $value = $_POST['pre_new_value'];
+	    if (array_key_exists($name, $presets))
+	    {
+		echo "<p><strong>New preset '$name' already exists. Not updated.</strong></p>\n";
+	    }
+	    else
+	    {
+		$presets[$name] = DGE_SlideShow_explodeParams($value);
+		echo "<p>New preset '$name' added.</p>\n";
+		$updatepresets = 1;
+	    }
+	}
+	// Check for updates to existing presets.
+	foreach ($presets as $name=>$preset)
+	{
+	    $postkey = "pre_upd_".$name;
+	    $current = DGE_SlideShow_implodeParams($preset);
+	    if (array_key_exists($postkey,$_POST) &&
+		$_POST[$postkey] != $current)
+	    {
+		$update = $_POST[$postkey];
+		if ($update == '')
+		{
+		    unset($presets[$name]);
+		    echo "<p>Preset '$name' removed.</p>\n";
+		}
+		else
+		{
+		    $presets[$name]=DGE_SlideShow_explodeParams($update);
+		    echo "<p>Preset '$name' updated.</p>\n";
+		}
+		$updatepresets = 1;
+	    }
+	}
+	// Do all updates to the presets in one go.
+	if ($updatepresets)
+	{
+	    update_option('dge_ss_presets', $presets);
+	}
 	echo '</div>';
-    } ?>
+    }
+
+    // ----------------------------------------------------------------
+    // DISPLAY FORM
+    // ----------------------------------------------------------------
+ ?>
 <div class="wrap">
   <form method="post">
     <h2>Slideshow Options</h2>
-    <p>Default timeout (mins) <input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></p>
+    <fieldset name="defaults">
+    <legend>Defaults</legend>
+    <p>Timeout (mins) <input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></p>
+    </fieldset>
+    <fieldset name="presets">
+      <legend>Presets</legend>
+      <table>
+<?php
+if ($presets && count($presets)>0)
+{
+    echo "        <tr><td colspan=\"3\">Existing Presets</td><tr>\n";
+    foreach ($presets as $name=>$value)
+    {
+	echo "      <tr><td>$name</td>";
+	echo "<td colspan=\"2\"><input type=\"text\" name=\"pre_upd_$name\" size=\"50\" value=\"".
+	     DGE_SlideShow_implodeParams($value).'"/>';
+	echo "</td></tr>\n";
+    }
+}
+?>
+        <tr><td colspan="3">New Preset</td><tr>
+        <tr>
+          <td>Name</td>
+          <td><input type="text" name="pre_new_name"/></td>
+	</tr>
+        <tr>
+          <td>Value</td>
+          <td colspan="2"><input type="text" size="50" name="pre_new_value"/></td>
+        </tr>
+      </table>
+    </fieldset>
     <div class="submit">
       <input type="submit" name="info_update" value="Update options &raquo;" />
     </div>
