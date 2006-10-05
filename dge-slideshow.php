@@ -145,11 +145,11 @@ function DGE_SlideShow_contentFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^\n!]+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
-	$find[] = "^$val[0]^";
+	$find[] = "^".str_replace('?','\?',$val[0])."^";
 	$params = array();
 	if ($val[3] != '')
 	{
@@ -157,6 +157,7 @@ function DGE_SlideShow_contentFilter($content = '')
 	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
 	    $params = DGE_SlideShow_explodeParams($val[3]);
 	}
+	$val[2] = str_replace('&#038;','&',$val[2]);
 	$replace[] = DGE_SlideShow_format($val[1], $val[2], $params);
     }
     return preg_replace($find, $replace, $content);
@@ -168,7 +169,7 @@ function DGE_SlideShow_securityFilter($content = '')
     $find[] = "//";
     $replace[] = "";
 
-    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^!]+!)?/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/!slideshow!([^!]+)!([^!]+)!([^\n!]+!)?/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $val)
     {
