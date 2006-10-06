@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: DGE_SlideShow
-Plugin URI: http://dave.stufftoread.net/
+Plugin URI: http://dev.wp-plugins.org/wiki/dge-slideshow
 Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dave.stufftoread.net/2006/07/13/scratch-that-xslt-is-the-way-forward/">this modified version</a> of the <a href="http://www.iconophobia.com/wordpress/?page_id=55">inlineRSS</a> plugin.
 Version: 0.2
 Author: Dave Elcock
@@ -240,16 +240,6 @@ function DGE_SlideShow_posttoggle($postvar, $option, $onString, $offString)
 
 function DGE_SlideShow_subpanel()
 {
-    // TODO - these need to go in an install function
-    if (get_option('dge_ss_def_timeout') == '')
-    {
-	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'yes');
-	add_option('dge_ss_inc_css', 1, 'Include CSS', 'yes');
-	add_option('dge_ss_mo_snip', 1, 'Standard image', 'no');
-	add_option('dge_ss_presets', array(), 'Presets', 'no');
-	echo "<div class=\"updated\"><p>Added initial defaults</p></div>\n";
-    }
-
     $presets = get_option('dge_ss_presets');
     if (!$presets) $presets = array();
 
@@ -349,21 +339,21 @@ function DGE_SlideShow_subpanel()
 <div class="wrap">
   <form method="post">
     <h2>Slideshow Options</h2>
-    <fieldset name="defaults">
-    <legend>Defaults</legend>
-    <table>
+
+    <h3>Defaults</h3>
+    <div><table>
     <tr><td>Timeout (mins)</td><td><input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></td><td><i>The default time to wait before refreshing the feed cache.</i></td></tr>
     <tr><td>Include CSS</td><td><input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></td><td><i>Includes default CSS rules in the header of each page.</i></td></tr>
     <tr><td>Standard sizes</td><td><input type="checkbox" name="mo_snip" value="1"<?php if (get_option('dge_ss_mo_snip')) echo ' checked="true"'; ?>/></td><td><i>Tries to pick the standard size image (usuall max 500 in any dimension). Basically, it avoids loading of enormous images from Flickr feeds, or too small images from Zooomr feeds.</i></td></tr>
-    </table>
-    </fieldset>
-    <fieldset name="presets">
-      <legend>Presets</legend>
-      <table>
+    </table></div>
+
+    <h3>Presets</h3>
+    <div><table>
 <?php
 if ($presets && count($presets)>0)
 {
-    echo "        <tr><td colspan=\"3\">Existing Presets</td><tr>\n";
+    echo "        <tr><td colspan=\"3\"><b>Existing Presets</b></td><tr>\n";
+    echo "        <tr><td colspan=\"3\"><i>To remove an existing preset, just delete the settings in the text field.</i></td></tr>\n";
     foreach ($presets as $name=>$value)
     {
 	echo "      <tr><td>$name</td>";
@@ -373,7 +363,7 @@ if ($presets && count($presets)>0)
     }
 }
 ?>
-        <tr><td colspan="3">New Preset</td><tr>
+        <tr><td colspan="3"><b>Add preset</b></td><tr>
         <tr>
           <td>Name</td>
           <td><input type="text" name="pre_new_name"/></td>
@@ -382,14 +372,38 @@ if ($presets && count($presets)>0)
           <td>Value</td>
           <td colspan="2"><input type="text" size="50" name="pre_new_value"/></td>
         </tr>
-      </table>
-    </fieldset>
+    </table></div>
     <div class="submit">
       <input type="submit" name="info_update" value="Update options &raquo;" />
     </div>
   </form>
 </div>
 <?php
+}
+
+function DGE_SlideShow_activate()
+{
+    // This is version...
+    $nversion = 0.2; // (n for new)
+    // Get the previous version
+    $pversion = get_option('dge_ss_version');
+
+    // Check for first-time install
+    if (!$pversion)
+	add_option('dge_ss_version', $nversion, 'Version', 'no');
+    else
+	update_option('dge_ss_version', $nversion);
+
+    $pversion = floatval($pversion);
+
+    // Version 0.2 options
+    if ($pversion < 0.2)
+    {
+	add_option('dge_ss_def_timeout', 60, 'Default timeout', 'yes');
+	add_option('dge_ss_inc_css', 1, 'Include CSS', 'yes');
+	add_option('dge_ss_mo_snip', 1, 'Standard image', 'no');
+	add_option('dge_ss_presets', array(), 'Presets', 'no');
+    }
 }
 
 // These add the filters and action to Wordpress.
@@ -400,4 +414,5 @@ add_filter('comment_url', 'DGE_SlideShow_securityFilter');
 add_filter('the_content', 'DGE_SlideShow_contentFilter');
 add_action('wp_head', 'DGE_SlideShow_insertHeader');
 add_action('admin_menu', 'DGE_SlideShow_admin');
+add_action('activate_dge-slideshow/dge-slideshow.php', 'DGE_SlideShow_activate');
 ?>
