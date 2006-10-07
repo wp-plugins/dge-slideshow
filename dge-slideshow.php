@@ -2,8 +2,8 @@
 /*
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dev.wp-plugins.org/wiki/dge-slideshow
-Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dave.stufftoread.net/2006/07/13/scratch-that-xslt-is-the-way-forward/">this modified version</a> of the <a href="http://www.iconophobia.com/wordpress/?page_id=55">inlineRSS</a> plugin.
-Version: 0.2
+Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a>.
+Version: 0.3 dev
 Author: Dave Elcock
 Author URI: http://dave.stufftoread.net/
 */
@@ -62,7 +62,7 @@ function DGE_SlideShow_format($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$inlineRSSout = inlineRSSparserWithParams(
+	$inlineRSSout = DGE_InlineRSS_parserWithParams(
 		$inlineRSSname, $url, 1,
 		$xsltFile, $xsltParams);
         if (empty($inlineRSSout))
@@ -384,7 +384,7 @@ if ($presets && count($presets)>0)
 function DGE_SlideShow_activate()
 {
     // This is version...
-    $nversion = 0.2; // (n for new)
+    $nversion = 0.3; // (n for new)
     // Get the previous version
     $pversion = get_option('dge_ss_version');
 
