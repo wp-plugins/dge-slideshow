@@ -4,7 +4,7 @@ Plugin Name: DGE_SlideShow
 Plugin URI: http://dev.wp-plugins.org/wiki/dge-slideshow
 Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a>.
 Version: 0.3 dev
-Author: Dave Elcock
+Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
 
@@ -17,17 +17,15 @@ Author URI: http://dave.stufftoread.net/
 //
 function DGE_SlideShow($ssid, $url, $params=array())
 {
-    // Oh bugger, these are just cut-and-pasted from inlineRSS.php.
-    // It'd be better if there was some interface to ask inlineRSS
-    // what its settings were.
-    $paramfile = 'inlineRSS.txt';    // Configuration file of feeds
-    $fileprefix = 'in_';             // What feed casual names get prefixed with
-	
+    // Steal these settings from inlinerss
+    $cacheprefix = get_option('dge_irss_cacheprefix');
+    $cachepath = get_option('dge_irss_cachepath');
+
     // Some other variables.
     $xsltParams = array();
     $xsltParams['ssid'] = $ssid;
-    $inlineRSSname = "dge-slideshow-".$ssid;
-    $cachefile = ABSPATH . "wp-content/" . $fileprefix . $inlineRSSname . ".html";
+    $inlineRSSname = 'dge-ss-'.$ssid;
+    $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
@@ -66,14 +64,13 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$inlineRSSout = DGE_InlineRSS_parserWithParams(
-		$inlineRSSname, $url, 1,
-		$xsltFile, $xsltParams);
+	$inlineRSSout = DGE_InlineRSS($inlineRSSname, $url, 1,
+				      $xsltFile, $xsltParams);
         if (empty($inlineRSSout))
 	{
 	    if ($exists == FALSE)
 	    {
-		die("Error creating slideshow $ssid: inlineRSS failed.");
+		return "<!-- Error creating slideshow $ssid: inlineRSS failed. -->\n";
 	    } 
 	    $writefile = FALSE;
         }
@@ -94,7 +91,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	if ($writefile)
 	{
 	    if (!($handle = fopen($cachefile,'w')))
-		    die ("Error opening $cachefile - possible permissions issue - directory permissions are " . substr(sprintf('%o', fileperms(ABSPATH . "wp-content/")), -4));
+		    return "<!-- Error opening $cachefile - possible permissions issue - directory permissions are " . substr(sprintf('%o', fileperms(ABSPATH . "wp-content/")), -4) ." -->\n";
 	    fwrite($handle,$output);
 	    fclose($handle);
 	}
