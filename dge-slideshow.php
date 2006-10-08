@@ -10,8 +10,12 @@ Author URI: http://dave.stufftoread.net/
 
 // This is the main slideshow function that does the real work. See
 // DGE_SlideShow_contentFilter() below for what to put in the $params
-// array.
-function DGE_SlideShow_format($ssid, $url, $params=array())
+// array. Just use corresponding keys and values in $params to get the
+// same result, e.g.
+// 
+// DGE_SlideShow('ss1','http://blah.com/feed', array('limit'=>5));
+//
+function DGE_SlideShow($ssid, $url, $params=array())
 {
     // Oh bugger, these are just cut-and-pasted from inlineRSS.php.
     // It'd be better if there was some interface to ask inlineRSS
@@ -139,6 +143,10 @@ function DGE_SlideShow_implodeParams($params)
 //  limit=<number>
 //         Optional field. Limits the number of images
 //         displayed. Default is 0, indicating no limit.
+//  preset=<preset name>
+//         Optional field. Applies the options defined in the named
+//         preset, before overriding them with any other options
+//         passed.
 //  reverse
 //         Optional field. Reverses the order of the images in the
 //         feed. Default is to not reverse the feed.
@@ -163,7 +171,7 @@ function DGE_SlideShow_contentFilter($content = '')
 	    $params = DGE_SlideShow_explodeParams($val[3]);
 	}
 	$val[2] = str_replace('&#038;','&',$val[2]);
-	$replace[] = DGE_SlideShow_format($val[1], $val[2], $params);
+	$replace[] = DGE_SlideShow($val[1], $val[2], $params);
     }
     return preg_replace($find, $replace, $content);
 }
@@ -182,18 +190,6 @@ function DGE_SlideShow_securityFilter($content = '')
 	$replace[] = "<!-- slideshow call removed -->";
     }
     return preg_replace($find, $replace, $content);
-}
-
-// This is for the php template-calling support. See the comments
-// above the content filter function for details of the possible
-// values for $params. Just use corresponding keys and values in
-// $params to get the same result, e.g.
-// 
-// DGE_SlideShow('ss1','http://blah.com/feed', array('limit'=>5));
-//
-function DGE_SlideShow($ssid, $url, $params=array())
-{
-    echo DGE_SlideShow_format($ssid, $url, $params);
 }
 
 // This is a Wordpress action to insert the javascript and css into
