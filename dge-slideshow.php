@@ -64,8 +64,10 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$inlineRSSout = DGE_InlineRSS($inlineRSSname, $url, 1,
-				      $xsltFile, $xsltParams);
+	$inlineRSSout = DGE_InlineRSS($inlineRSSname, $url,
+				      array('timeout'=>0,
+					    'xslt'=>$xsltFile),
+				      $xsltParams);
         if (empty($inlineRSSout))
 	{
 	    if ($exists == FALSE)
