@@ -9,7 +9,7 @@ Author URI: http://dave.stufftoread.net/
 */
 
 // This is the main slideshow function that does the real work. See
-// DGE_SlideShow_contentFilter() below for what to put in the $params
+// dge_ss_contentFilter() below for what to put in the $params
 // array. Just use corresponding keys and values in $params to get the
 // same result, e.g.
 // 
@@ -106,28 +106,6 @@ function DGE_SlideShow($ssid, $url, $params=array())
     return $output;
 }
 
-function DGE_SlideShow_explodeParams($paramString)
-{
-    $params = array();
-    foreach (explode(';', $paramString) as $param)
-    {
-	list($arg,$v) = explode('=', $param);
-	$params[$arg] = $v;
-    }
-    return $params;
-}
-
-function DGE_SlideShow_implodeParams($params)
-{
-    $result = array();
-    foreach ($params as $key=>$val)
-    {
-	if ($val == '') $result[]=$key;
-	else $result[] = "$key=$val";
-    }
-    return implode(';', $result);
-}
-
 // This is a Wordpress content filter that replaces occurrences of the
 // following format:
 //
@@ -152,7 +130,7 @@ function DGE_SlideShow_implodeParams($params)
 //  timeout=<minutes>
 //         Optional field. The time in minutes before the cached html
 //         is refreshed. Default is 60 minutes.
-function DGE_SlideShow_contentFilter($content = '')
+function dge_ss_contentFilter($content = '')
 {
     $find[] = "//";
     $replace[] = "";
@@ -167,7 +145,7 @@ function DGE_SlideShow_contentFilter($content = '')
 	{
 	    // knock off trailing '!'
 	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
-	    $params = DGE_SlideShow_explodeParams($val[3]);
+	    $params = dge_irss_exlodeParams($val[3]);
 	}
 	$val[2] = str_replace('&#038;','&',$val[2]);
 	$replace[] = DGE_SlideShow($val[1], $val[2], $params);
@@ -176,7 +154,7 @@ function DGE_SlideShow_contentFilter($content = '')
 }
 
 // Filters out inline calls to the slideshow.
-function DGE_SlideShow_securityFilter($content = '')
+function dge_ss_securityFilter($content = '')
 {
     $find[] = "//";
     $replace[] = "";
@@ -193,7 +171,7 @@ function DGE_SlideShow_securityFilter($content = '')
 
 // This is a Wordpress action to insert the javascript and css into
 // the page header.
-function DGE_SlideShow_insertHeader()
+function dge_ss_insertHeader()
 {
     $path = '/wordpress/wp-content/plugins/dge-slideshow/';
     echo "\n<!-- DGE_SlideShow includes -->\n";
@@ -207,15 +185,15 @@ function DGE_SlideShow_insertHeader()
 	'dge-slideshow.js"></script>'."\n\n";
 }
 
-function DGE_SlideShow_admin()
+function dge_ss_admin()
 {
     if (function_exists('add_options_page'))
     {
-	add_options_page('Slideshow Options', 'Slideshow', 8, basename(__FILE__), 'DGE_SlideShow_subpanel');
+	add_options_page('Slideshow Options', 'Slideshow', 8, basename(__FILE__), 'dge_ss_subpanel');
     }
 }
 
-function DGE_SlideShow_posttoggle($postvar, $option, $onString, $offString)
+function dge_ss_posttoggle($postvar, $option, $onString, $offString)
 {
     if (isset($_POST[$postvar]))
     {
@@ -233,7 +211,7 @@ function DGE_SlideShow_posttoggle($postvar, $option, $onString, $offString)
     return '';
 }
 
-function DGE_SlideShow_subpanel()
+function dge_ss_subpanel()
 {
     $presets = get_option('dge_ss_presets');
     if (!$presets) $presets = array();
@@ -265,12 +243,12 @@ function DGE_SlideShow_subpanel()
 	    }
 	}
 	// Include CSS in header toggled?
-	$updateText .= DGE_SlideShow_posttoggle(
+	$updateText .= dge_ss_posttoggle(
 	    'inc_css', 'dge_ss_inc_css',
 	    "<p>Including default CSS rules in header.</p>\n",
 	    "<p>No longer including default CSS rules in header.</p>\n");
 	// Standard image size
-	$updateText .= DGE_SlideShow_posttoggle(
+	$updateText .= dge_ss_posttoggle(
 	    'mo_snip', 'dge_ss_mo_snip',
 	    "<p>Using standard image size by default.</p>\n",
 	    "<p>Using feed's image size by default.</p>\n");
@@ -290,7 +268,7 @@ function DGE_SlideShow_subpanel()
 	    }
 	    else
 	    {
-		$presets[$name] = DGE_SlideShow_explodeParams($value);
+		$presets[$name] = dge_irss_exlodeParams($value);
 		$updateText .= "<p>New preset '$name' added.</p>\n";
 		$updatepresets = 1;
 	    }
@@ -299,7 +277,7 @@ function DGE_SlideShow_subpanel()
 	foreach ($presets as $name=>$preset)
 	{
 	    $postkey = "pre_upd_".$name;
-	    $current = DGE_SlideShow_implodeParams($preset);
+	    $current = dge_irss_implodeParams($preset);
 	    if (array_key_exists($postkey,$_POST) &&
 		$_POST[$postkey] != $current)
 	    {
@@ -311,7 +289,7 @@ function DGE_SlideShow_subpanel()
 		}
 		else
 		{
-		    $presets[$name]=DGE_SlideShow_explodeParams($update);
+		    $presets[$name]=dge_irss_exlodeParams($update);
 		    $updateText .= "<p>Preset '$name' updated.</p>\n";
 		}
 		$updatepresets = 1;
@@ -353,7 +331,7 @@ if ($presets && count($presets)>0)
     {
 	echo "      <tr><td>$name</td>";
 	echo "<td colspan=\"2\"><input type=\"text\" name=\"pre_upd_$name\" size=\"50\" value=\"".
-	     DGE_SlideShow_implodeParams($value).'"/>';
+	     dge_irss_implodeParams($value).'"/>';
 	echo "</td></tr>\n";
     }
 }
@@ -376,7 +354,7 @@ if ($presets && count($presets)>0)
 <?php
 }
 
-function DGE_SlideShow_activate()
+function dge_ss_activate()
 {
     // This is version...
     $nversion = 0.3; // (n for new)
@@ -402,12 +380,12 @@ function DGE_SlideShow_activate()
 }
 
 // These add the filters and action to Wordpress.
-add_filter('comment_author', 'DGE_SlideShow_securityFilter');
-add_filter('comment_email', 'DGE_SlideShow_securityFilter');
-add_filter('comment_text', 'DGE_SlideShow_securityFilter');
-add_filter('comment_url', 'DGE_SlideShow_securityFilter');
-add_filter('the_content', 'DGE_SlideShow_contentFilter');
-add_action('wp_head', 'DGE_SlideShow_insertHeader');
-add_action('admin_menu', 'DGE_SlideShow_admin');
-add_action('activate_dge-slideshow/dge-slideshow.php', 'DGE_SlideShow_activate');
+add_filter('comment_author', 'dge_ss_securityFilter');
+add_filter('comment_email', 'dge_ss_securityFilter');
+add_filter('comment_text', 'dge_ss_securityFilter');
+add_filter('comment_url', 'dge_ss_securityFilter');
+add_filter('the_content', 'dge_ss_contentFilter');
+add_action('wp_head', 'dge_ss_insertHeader');
+add_action('admin_menu', 'dge_ss_admin');
+add_action('activate_dge-slideshow/dge-slideshow.php', 'dge_ss_activate');
 ?>
