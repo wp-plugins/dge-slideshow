@@ -145,7 +145,7 @@ function dge_ss_contentFilter($content = '')
 	{
 	    // knock off trailing '!'
 	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
-	    $params = dge_irss_exlodeParams($val[3]);
+	    $params = dge_irss_explodeParams($val[3]);
 	}
 	$val[2] = str_replace('&#038;','&',$val[2]);
 	$replace[] = DGE_SlideShow($val[1], $val[2], $params);
@@ -268,7 +268,7 @@ function dge_ss_subpanel()
 	    }
 	    else
 	    {
-		$presets[$name] = dge_irss_exlodeParams($value);
+		$presets[$name] = dge_irss_explodeParams($value);
 		$updateText .= "<p>New preset '$name' added.</p>\n";
 		$updatepresets = 1;
 	    }
@@ -289,7 +289,7 @@ function dge_ss_subpanel()
 		}
 		else
 		{
-		    $presets[$name]=dge_irss_exlodeParams($update);
+		    $presets[$name]=dge_irss_explodeParams($update);
 		    $updateText .= "<p>Preset '$name' updated.</p>\n";
 		}
 		$updatepresets = 1;
