@@ -123,14 +123,11 @@ DGE_SlideShow.prototype.displaySlide = function(slide)
 // DGE_Slide constructor and methods
 // ----------------------------------------------------------------------
 
-function DGE_Slide(href, imagesrc, width, height)
+function DGE_Slide(href, imagesrc)
 {
     // setup variables
     this.href = href;
     this.imagesrc = imagesrc;
-    this.width = width;
-    this.height = height;
-    this.ratio = width/height;
     this.image = new Image();
     this.image.slide = this;
     this.image.onerror = DGE_Slide.prototype.onImageError;
@@ -191,6 +188,7 @@ DGE_Slide.prototype.loadingFinished = function()
 {
      this.imageLoading = false;
      DGE_revokeClass(this.node.firstChild, 'loading');
+     this.ratio = this.image.width/this.image.height;
 }
 
 DGE_Slide.prototype.onImagePreload = function()

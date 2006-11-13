@@ -19,7 +19,7 @@
 
   <xsl:template match="item" mode="jsitem">
     <xsl:if test="not($limit) or position()&lt;=$limit">
-      <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="link"/>", "<xsl:value-of select="media:content/@url"/>", "<xsl:value-of select="media:content/@width"/>", "<xsl:value-of select="media:content/@height"/>"));
+      <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="link"/>", "<xsl:value-of select="media:content/@url"/>"));
     </xsl:if>
   </xsl:template>
 
