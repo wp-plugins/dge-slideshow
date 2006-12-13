@@ -47,6 +47,9 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$xsltFile = "dge-slideshow/forward.xslt";
     if (array_key_exists('limit', $params))
 	$xsltParams['limit'] = $params['limit'];
+    // This must go after the forward/reverse check
+    if (array_key_exists('xslt', $params))
+	$xsltFile = $params['xslt'];
 
     // Look for an existing cache and find out how old it is
     if ( file_exists($cachefile))
