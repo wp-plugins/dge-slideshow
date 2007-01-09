@@ -4,7 +4,7 @@
   version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:rss="http://purl.org/rss/1.0/"
                 xmlns:dc="http://purl.org/dc/elements/1.1/"
-		xmlns:media="http://search.yahoo.com/mrss"
+		xmlns:media="http://search.yahoo.com/mrss/"
                 xmlns:admin="http://webns.net/mvcb/"
                 xmlns:l="http://purl.org/rss/1.0/modules/link/"
                 xmlns:content="http://purl.org/rss/1.0/modules/content/">
