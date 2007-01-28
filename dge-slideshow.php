@@ -26,7 +26,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $xsltParams['ssid'] = $ssid;
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
-    $xsltFile = "dge-slideshow/slideshow.xsl";
+    $xsltFile = "dge-slideshow/rssfeed.xsl";
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
