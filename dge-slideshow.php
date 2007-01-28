@@ -144,7 +144,7 @@ function dge_ss_contentFilter($content = '')
 	if (is_feed() || $doing_rss)
 	{
 	    $find[] = "^$val[0]^";
-	    $replace[] = "<p><i>[Slideshow removed from feed]</i></p>";
+	    $replace[] = "<i>[Slideshow removed from feed]</i>";
 	}
 	else
 	{
