@@ -26,6 +26,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $xsltParams['ssid'] = $ssid;
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
+    $xsltFile = "dge-slideshow/slideshow.xsl";
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
@@ -42,12 +43,10 @@ function DGE_SlideShow($ssid, $url, $params=array())
     else
 	$timeout = get_option('dge_ss_def_timeout');
     if (array_key_exists('reverse', $params))
-	$xsltFile = "dge-slideshow/reverse.xslt";
-    else
-	$xsltFile = "dge-slideshow/forward.xslt";
+	$xsltParams['order'] = "descending";
     if (array_key_exists('limit', $params))
 	$xsltParams['limit'] = $params['limit'];
-    // This must go after the forward/reverse check
+    // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
 	$xsltFile = $params['xslt'];
 
