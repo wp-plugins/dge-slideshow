@@ -8,7 +8,7 @@
                 xmlns:admin="http://webns.net/mvcb/"
                 xmlns:l="http://purl.org/rss/1.0/modules/link/"
                 xmlns:content="http://purl.org/rss/1.0/modules/content/">
-  <xsl:include href="ss-includes.xsl" />
+  <xsl:include href="dge-slideshow.xsl" />
   <xsl:output omit-xml-declaration="yes" indent="no" method="xml"/>
   <xsl:strip-space elements="*"/>
   <xsl:param name="limit" select="0" />

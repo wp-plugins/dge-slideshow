@@ -2,7 +2,7 @@
 
 <xsl:stylesheet exclude-result-prefixes="xsl"
   version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:include href="ss-includes.xsl" />
+  <xsl:include href="dge-slideshow.xsl" />
   <xsl:include href="replace.xsl" />
   <xsl:output omit-xml-declaration="yes" indent="no" method="xml"/>
   <xsl:strip-space elements="*"/>
