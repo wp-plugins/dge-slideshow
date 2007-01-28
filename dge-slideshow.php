@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: DGE_SlideShow
-Plugin URI: http://dev.wp-plugins.org/wiki/dge-slideshow
-Description: Turns a Flickr or Zooomr image feed into a slideshow. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a>.
+Plugin URI: http://dave.stufftoread.net/slideshow/
+Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a>.
 Version: 0.3 dev
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
@@ -141,16 +141,24 @@ function dge_ss_contentFilter($content = '')
 
     foreach ($matches as $val)
     {
-	$find[] = "^".str_replace('?','\?',$val[0])."^";
-	$params = array();
-	if ($val[3] != '')
+	if (is_feed() || $doing_rss)
 	{
-	    // knock off trailing '!'
-	    $val[3] = substr($val[3], 0, strlen($val[3])-1);
-	    $params = dge_irss_explodeParams($val[3]);
+	    $find[] = "^$val[0]^";
+	    $replace[] = "<p><i>[Slideshow removed from feed]</i></p>";
 	}
-	$val[2] = str_replace('&#038;','&',$val[2]);
-	$replace[] = DGE_SlideShow($val[1], $val[2], $params);
+	else
+	{
+	    $find[] = "^".str_replace('?','\?',$val[0])."^";
+	    $params = array();
+	    if ($val[3] != '')
+	    {
+		// knock off trailing '!'
+		$val[3] = substr($val[3], 0, strlen($val[3])-1);
+		$params = dge_irss_explodeParams($val[3]);
+	    }
+	    $val[2] = str_replace('&#038;','&',$val[2]);
+	    $replace[] = DGE_SlideShow($val[1], $val[2], $params);
+	}
     }
     return preg_replace($find, $replace, $content);
 }
