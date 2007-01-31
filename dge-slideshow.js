@@ -105,7 +105,7 @@ DGE_SlideShow.prototype.displaySlide = function(slide)
 	var width = parseInt(this.displayHeight*slide.ratio);
 	this.image.style.height = this.displayHeight+'px';
 	this.image.style.width = width+'px';
-// 	this.imgwrap.style.top = 0;
+ 	this.imgwrap.style.top = 0;
 //	this.imgwrap.style.left = parseInt((this.displayWidth-width)/2)+'px';
     }
     else
@@ -113,7 +113,7 @@ DGE_SlideShow.prototype.displaySlide = function(slide)
 	var height = parseInt(this.displayWidth/slide.ratio);
 	this.image.style.height = height+'px';
 	this.image.style.width = this.displayWidth+'px';
-// 	this.imgwrap.style.top = parseInt((this.displayHeight-height)/2)+'px';
+ 	this.imgwrap.style.top = parseInt((this.displayHeight-height)/2)+'px';
 // 	this.imgwrap.style.left = 0;
     }
     this.imgwrap.style.width = this.image.style.width;
