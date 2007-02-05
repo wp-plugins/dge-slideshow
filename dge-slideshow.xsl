@@ -1,42 +1,36 @@
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<?xml version="1.0" encoding="UTF-8" ?>
 
-  <xsl:template name="dge-ss-begin">
-    <xsl:param name="ssid" />
-    <xsl:text disable-output-escaping="yes">&lt;script language="javascript"></xsl:text>
+<xsl:stylesheet version="1.0"
+	exclude-result-prefixes="xsl"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output omit-xml-declaration="yes" indent="no" method="xml"/>
+  <xsl:strip-space elements="*"/>
+  <xsl:param name="order" select="'ascending'" />
+  <xsl:param name="limit" select="0" />
+  <xsl:param name="ssid" />
+
+  <xsl:template match="/slideshow">
+    <script language="javascript">
     var <xsl:value-of select="$ssid"/> = new DGE_SlideShow();
-  </xsl:template>
-
-  <xsl:template name="dge-ss-middle">
-    <xsl:param name="ssid" />
-    <xsl:text disable-output-escaping="yes">&lt;/script>&lt;div class="dge-slideshow" id="dge-ss-</xsl:text><xsl:value-of select="$ssid"/><xsl:text disable-output-escaping="yes">"></xsl:text>
-      <div class="display"><div class="imgwrap"><a href=""><img src="" /></a></div></div>
-      <xsl:text disable-output-escaping="yes">&lt;div class="thumbnails">&lt;ul></xsl:text>
-  </xsl:template>
-
-  <xsl:template name="dge-ss-end">
-    <xsl:param name="ssid" />
-    <xsl:text disable-output-escaping="yes">&lt;/ul>&lt;/div>&lt;/div></xsl:text>
-    <script language="javascript"><xsl:value-of select="$ssid"/>.attach(document.getElementById("dge-ss-<xsl:value-of select="$ssid"/>"));</script>
-  </xsl:template>
-
-  <xsl:template name="dge-ss-jsitem">
-    <xsl:param name="limit" select="0" />
-    <xsl:param name="ssid" />
-    <xsl:param name="url" />
-    <xsl:param name="img" />
-    <xsl:if test="not($limit) or position()&lt;=$limit">
-      <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="$url"/>", "<xsl:value-of select="$img"/>"));
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template name="dge-ss-thumb">
-    <xsl:param name="limit" select="0" />
-    <xsl:param name="ssid" />
-    <xsl:param name="src" />
-    <xsl:param name="alt" />
-    <xsl:if test="not($limit) or position()&lt;=$limit">
-      <li><img src="{$src}" alt="{$alt}" title="{$alt}" onclick="{$ssid}.select({position()-1})" /></li>
-    </xsl:if>
+    <xsl:for-each select="slide">
+      <xsl:sort select="position()" data-type="number" order="{$order}" />
+      <xsl:if test="not($limit) or position()&lt;=$limit">
+        <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="@link"/>", "<xsl:value-of select="@image"/>"));
+      </xsl:if>
+    </xsl:for-each>
+    </script>
+    <div class="ss-container" id="{concat('ss-',$ssid)}">
+    <div class="ss-display">
+      <div class="ss-imgwrap"><a href=""><img src="" /></a></div></div>
+      <div class="ss-thumbs"><ul>
+      <xsl:for-each select="slide">
+        <xsl:sort select="position()" data-type="number" order="{$order}" />
+        <xsl:if test="not($limit) or position()&lt;=$limit">
+          <li><img src="{@thumb}" alt="{@title}" title="{@title}" onclick="{$ssid}.select({position()-1})" /></li>
+        </xsl:if>
+      </xsl:for-each>
+      </ul></div></div>
+    <script language="javascript"><xsl:value-of select="$ssid"/>.attach(document.getElementById("ss-<xsl:value-of select="$ssid"/>"));</script>
   </xsl:template>
 
 </xsl:stylesheet>

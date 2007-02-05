@@ -2,8 +2,8 @@
 /*
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
-Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a>.
-Version: 0.3
+Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.92.
+Version: 0.31
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
@@ -26,7 +26,8 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $xsltParams['ssid'] = $ssid;
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
-    $xsltFile = "dge-slideshow/rssfeed.xsl";
+    $stage1xsl = "dge-slideshow/rssfeed.xsl";
+    $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
@@ -48,7 +49,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$xsltParams['limit'] = $params['limit'];
     // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
-	$xsltFile = $params['xslt'];
+	$stage1xsl = $params['xslt'];
 
     // Look for an existing cache and find out how old it is
     if ( file_exists($cachefile))
@@ -66,11 +67,14 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$inlineRSSout = DGE_InlineRSS($inlineRSSname, $url,
-				      array('timeout'=>0,
-					    'xslt'=>$xsltFile),
-				      $xsltParams);
-        if (empty($inlineRSSout))
+	$stage1xml = DGE_InlineRSS($inlineRSSname, $url,
+				   array('timeout'=>0,
+					 'xslt'=>$stage1xsl));
+	$stage2xml = DGE_InlineRSS($inlineRSSname, '',
+				   array('xml'=>$stage1xml,
+					 'xslt'=>$stage2xsl),
+				   $xsltParams);
+        if (empty($stage2xml))
 	{
 	    if ($exists == FALSE)
 	    {
@@ -86,9 +90,10 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	    // The _o.jpg filter cuts out loading of enormous original
 	    // photos from Flickr streams.
 	    if (get_option('dge_ss_mo_snip'))
-		$output = preg_replace('/_[mo]\.jpg/', '.jpg', $inlineRSSout);
+		$output = preg_replace('/_[mo]\.jpg/', '.jpg', $stage2xml);
 	    else
-		$output = $inlineRSSout;
+		$output = $stage2xml;
+	    $output = "\n<!--\n".$stage1xml."\n-->".$output;
 	    $writefile = TRUE;
         }
 
@@ -105,7 +110,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	// We have a local copy, so fetch it.
 	$output = file_get_contents($cachefile);
     }
-    return $output;
+    return "<!-- DGE_SlideShow ".get_option('dge_ss_version')." -->".$output;
 }
 
 // This is a Wordpress content filter that replaces occurrences of the
@@ -367,7 +372,7 @@ if ($presets && count($presets)>0)
 function dge_ss_activate()
 {
     // This is version...
-    $nversion = 0.3; // (n for new)
+    $nversion = 0.31; // (n for new)
     // Get the previous version
     $pversion = get_option('dge_ss_version');
 
