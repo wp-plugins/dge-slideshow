@@ -2,38 +2,38 @@
 /*	text-align: center;*/
 	margin-top: 1em;
 }
-.ss-container ul {
+.ss-thumbs ul {
 	margin: 0;
 	padding: 0;
 }
-.ss-container li {
+.ss-thumbs li {
 	margin:0;
 	padding: 0;
 	display:none;
 }
-.ss-container ul li {
+.ss-thumbs ul li {
 	list-style-type: none;
 	list-style-image: none;
 }
 .ss-container img {
 	margin:0;
 }
-.ss-container li img {
+.ss-thumbs li img {
 	border:1px solid black;
 	width:75px;
 	height:75px;
 }
-.ss-container li img.loading {
+.ss-thumbs li img.loading {
 	opacity:0.5; /* Mozilla and Safari */
 	filter: alpha(opacity=50); /* I.E. */
 }
-.ss-container li img.selected {
+.ss-thumbs li img.selected {
 	border: 1px solid red;
 }
-.ss-container li img.before-selected {
+.ss-thumbs li img.before-selected {
 	border-right:0;
 }
-.ss-container li img.after-selected {
+.ss-thumbs li img.after-selected {
 	border-left:0;
 }
 .ss-container div {

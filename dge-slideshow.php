@@ -47,6 +47,16 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$xsltParams['order'] = "descending";
     if (array_key_exists('limit', $params))
 	$xsltParams['limit'] = $params['limit'];
+    if (array_key_exists('delay', $params))
+	$xsltParams['delay'] = $params['delay'];
+    if (array_key_exists('repeat', $params))
+	$xsltParams['repeat'] = '1';
+    if (array_key_exists('norepeat', $params))
+	$xsltParams['repeat'] = '0';
+    if (array_key_exists('play', $params))
+	$xsltParams['play'] = '1';
+    if (array_key_exists('pause', $params))
+	$xsltParams['play'] = '0';
     // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
 	$stage1xsl = $params['xslt'];
@@ -67,9 +77,10 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$stage1xml = DGE_InlineRSS($inlineRSSname, $url,
-				   array('timeout'=>0,
-					 'xslt'=>$stage1xsl));
+	$stage1xml = "<?xml version=\"1.0\"?>\n";
+	$stage1xml .= DGE_InlineRSS($inlineRSSname, $url,
+				    array('timeout'=>0,
+					  'xslt'=>$stage1xsl));
 	$stage2xml = DGE_InlineRSS($inlineRSSname, '',
 				   array('xml'=>$stage1xml,
 					 'xslt'=>$stage2xsl),

@@ -2,11 +2,43 @@
 // DGE_SlideShow constructor and methods
 // ----------------------------------------------------------------------
 
-function DGE_SlideShow()
+function DGE_SlideShow(name, repeat, delay, autoplay)
 {
     // setup member variables
+    this.name = name;
+    this.repeat = repeat;
+    this.delay = delay;
+    this.autoplay = autoplay;
     this.slides = new Array();
     this.lastSlide = -1;
+    this.clock = null;
+    this.count = 1;
+}
+
+DGE_SlideShow.prototype.play = function()
+{
+    this.clock = setInterval(this.name+'.nextSlide()', this.delay);
+}
+
+DGE_SlideShow.prototype.pause = function()
+{
+    clearInterval(this.clock);
+    this.clock = null;
+}
+
+DGE_SlideShow.prototype.nextSlide = function()
+{
+    if (this.lastSlide == this.slides.length-1)
+    {
+	if (this.repeat) this.select(0);
+	else this.pause();
+    }
+    else this.select(this.lastSlide+1);
+}
+
+DGE_SlideShow.prototype.prevSlide = function()
+{
+    this.select(this.lastSlide-1);
 }
 
 DGE_SlideShow.prototype.addSlide = function(slide)
@@ -18,8 +50,10 @@ DGE_SlideShow.prototype.attach = function(node)
 {
     // Finish off grabbing nodes
     this.node = node;
-    this.display = node.getElementsByTagName('div').item(0);
-    this.imgwrap = this.display.getElementsByTagName('div').item(0);
+    this.menu = node.childNodes[0];
+    this.display = node.childNodes[1];
+    this.thumbs = node.childNodes[2];
+    this.imgwrap = this.display.childNodes[0];
     this.link = this.imgwrap.getElementsByTagName('a').item(0);
     this.image = this.link.getElementsByTagName('img').item(0);
     this.displayWidth = parseFloat(DGE_getStyle(this.display, 'width'));
@@ -27,19 +61,20 @@ DGE_SlideShow.prototype.attach = function(node)
     this.displayRatio = this.displayWidth/this.displayHeight;
 
     // Attach li elements to slides
-    var liEls = node.getElementsByTagName('li');
+    var liEls = this.thumbs.getElementsByTagName('li');
     var count = liEls.length;
     if (count > this.slides.length) count = this.slides.length;
     else this.slides.length = count;
     for (s=0;s<count;s++) this.slides[s].attach(this, liEls[s]);
 
     this.select(0);
+    if (this.autoplay) this.play();
 }
 
 // slide parameter should be a slide index, so starting at 0
 DGE_SlideShow.prototype.select = function(slide)
 {
-    if (this.lastSlide != slide)
+    if (slide >= 0 && slide < this.slides.length && this.lastSlide != slide)
     {
 	this.lastSlide = slide;
 

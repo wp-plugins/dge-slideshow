@@ -8,7 +8,7 @@
                 xmlns:admin="http://webns.net/mvcb/"
                 xmlns:l="http://purl.org/rss/1.0/modules/link/"
                 xmlns:content="http://purl.org/rss/1.0/modules/content/">
-  <xsl:output method="xml"/>
+  <xsl:output omit-xml-declaration="yes" method="xml"/>
 
   <xsl:template match="/rss">
     <slideshow>

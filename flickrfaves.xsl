@@ -3,7 +3,7 @@
 <xsl:stylesheet exclude-result-prefixes="xsl"
   version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:include href="zf-hack.xsl" />
-  <xsl:output method="xml"/>
+  <xsl:output omit-xml-declaration="yes" method="xml"/>
 
   <xsl:template match="/html">
     <slideshow>

@@ -6,7 +6,7 @@
     xmlns="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="xsl xhtml">
   <xsl:include href="zf-hack.xsl" />
-  <xsl:output method="xml"/>
+  <xsl:output omit-xml-declaration="yes" method="xml"/>
 
   <xsl:template match="/xhtml:html">
     <slideshow xmlns="">
