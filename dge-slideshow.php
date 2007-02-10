@@ -104,7 +104,6 @@ function DGE_SlideShow($ssid, $url, $params=array())
 		$output = preg_replace('/_[mo]\.jpg/', '.jpg', $stage2xml);
 	    else
 		$output = $stage2xml;
-	    $output = "\n<!--\n".$stage1xml."\n-->".$output;
 	    $writefile = TRUE;
         }
 

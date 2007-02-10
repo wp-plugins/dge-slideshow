@@ -10,40 +10,82 @@ function DGE_SlideShow(name, repeat, delay, autoplay)
     this.delay = delay;
     this.autoplay = autoplay;
     this.slides = new Array();
-    this.lastSlide = -1;
+    this.current = -1;
     this.clock = null;
     this.count = 1;
 }
 
+DGE_SlideShow.prototype.playing = function()
+{
+    return this.clock != null;
+}
+
 DGE_SlideShow.prototype.play = function()
 {
-    this.clock = setInterval(this.name+'.nextSlide()', this.delay);
+    if (this.current < this.slides.length-1 || this.repeat)
+    {
+	DGE_revokeClass(this.node,'ss-paused');
+	DGE_applyClass(this.node,'ss-playing');
+	clearInterval(this.clock);
+	this.clock = setInterval(this.name+'.nextSlide()', this.delay);
+    }
 }
 
 DGE_SlideShow.prototype.pause = function()
 {
+    DGE_revokeClass(this.node,'ss-playing');
+    DGE_applyClass(this.node,'ss-paused');
     clearInterval(this.clock);
     this.clock = null;
 }
 
 DGE_SlideShow.prototype.nextSlide = function()
 {
-    if (this.lastSlide == this.slides.length-1)
+    if (this.repeat)
     {
-	if (this.repeat) this.select(0);
-	else this.pause();
+	if (this.current == this.slides.length-1) this.select(0);
+	else this.select(this.current+1);
     }
-    else this.select(this.lastSlide+1);
+    else if (this.current < this.slides.length-1)
+    {
+	this.select(this.current+1);
+	if (this.current == this.slides.length-1) this.pause();
+    }
 }
 
 DGE_SlideShow.prototype.prevSlide = function()
 {
-    this.select(this.lastSlide-1);
+    this.select(this.current-1);
+}
+
+DGE_SlideShow.prototype.firstSlide = function()
+{
+    this.select(0);
+}
+
+DGE_SlideShow.prototype.lastSlide = function()
+{
+    this.select(this.slides.length-1);
 }
 
 DGE_SlideShow.prototype.addSlide = function(slide)
 {
     this.slides.push(slide);
+}
+
+DGE_SlideShow.prototype.menuHandler = function(event)
+{
+    // 'this' is the <li> element that was clicked
+    var ss = this.parentNode.parentSlideshow;
+    switch(this.className)
+    {
+    case 'ss-play': ss.play(); break;
+    case 'ss-pause': ss.pause(); break;
+    case 'ss-next': ss.nextSlide(); break;
+    case 'ss-prev': ss.prevSlide(); break;
+    case 'ss-first': ss.firstSlide(); break;
+    case 'ss-last': ss.lastSlide(); break;
+    }
 }
 
 DGE_SlideShow.prototype.attach = function(node)
@@ -60,6 +102,12 @@ DGE_SlideShow.prototype.attach = function(node)
     this.displayHeight = parseFloat(DGE_getStyle(this.display, 'height'));
     this.displayRatio = this.displayWidth/this.displayHeight;
 
+    // Hook up play, pause, etc.
+    var menuUL = this.menu.childNodes[0];
+    menuUL.parentSlideshow = this;
+    for (i=0;i<menuUL.childNodes.length;i++)
+        menuUL.childNodes[i].onclick = this.menuHandler;
+
     // Attach li elements to slides
     var liEls = this.thumbs.getElementsByTagName('li');
     var count = liEls.length;
@@ -69,14 +117,15 @@ DGE_SlideShow.prototype.attach = function(node)
 
     this.select(0);
     if (this.autoplay) this.play();
+    else this.pause();
 }
 
 // slide parameter should be a slide index, so starting at 0
 DGE_SlideShow.prototype.select = function(slide)
 {
-    if (slide >= 0 && slide < this.slides.length && this.lastSlide != slide)
+    if (slide >= 0 && slide < this.slides.length && this.current != slide)
     {
-	this.lastSlide = slide;
+	this.current = slide;
 
 	// First up, get the main image loading, but hide it for now
 	// until it loads.
