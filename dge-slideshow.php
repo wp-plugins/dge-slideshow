@@ -198,7 +198,7 @@ function dge_ss_securityFilter($content = '')
 // the page header.
 function dge_ss_insertHeader()
 {
-    $path = get_option('siteurl').'/'.PLUGINDIR.'/dge-slideshow/';
+    $path = get_option('siteurl').'/wp-content/plugins/dge-slideshow/';
     echo "\n<!-- DGE_SlideShow includes -->\n";
     if (get_option('dge_ss_inc_css'))
     {
