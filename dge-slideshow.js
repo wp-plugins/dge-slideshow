@@ -81,10 +81,10 @@ DGE_SlideShow.prototype.menuHandler = function(event)
     {
     case 'ss-play': ss.play(); break;
     case 'ss-pause': ss.pause(); break;
-    case 'ss-next': ss.nextSlide(); break;
-    case 'ss-prev': ss.prevSlide(); break;
-    case 'ss-first': ss.firstSlide(); break;
-    case 'ss-last': ss.lastSlide(); break;
+    case 'ss-next': ss.nextSlide(); ss.pause(); break;
+    case 'ss-prev': ss.prevSlide(); ss.pause(); break;
+    case 'ss-first': ss.firstSlide(); ss.pause(); break;
+    case 'ss-last': ss.lastSlide(); ss.pause(); break;
     }
 }
 
@@ -95,7 +95,7 @@ DGE_SlideShow.prototype.attach = function(node)
     this.menu = node.childNodes[0];
     this.display = node.childNodes[1];
     this.thumbs = node.childNodes[2];
-    this.imgwrap = this.display.childNodes[0];
+    this.imgwrap = this.display.getElementsByTagName('div').item(0);
     this.link = this.imgwrap.getElementsByTagName('a').item(0);
     this.image = this.link.getElementsByTagName('img').item(0);
     this.displayWidth = parseFloat(DGE_getStyle(this.display, 'width'));
@@ -103,17 +103,18 @@ DGE_SlideShow.prototype.attach = function(node)
     this.displayRatio = this.displayWidth/this.displayHeight;
 
     // Hook up play, pause, etc.
-    var menuUL = this.menu.childNodes[0];
+    var menuUL = this.menu.getElementsByTagName('ul').item(0);
+    var menuLIs = menuUL.getElementsByTagName('li');
     menuUL.parentSlideshow = this;
-    for (i=0;i<menuUL.childNodes.length;i++)
-        menuUL.childNodes[i].onclick = this.menuHandler;
+    for (i=0;i<menuLIs.length;i++)
+        menuLIs[i].onclick = this.menuHandler;
 
     // Attach li elements to slides
     var liEls = this.thumbs.getElementsByTagName('li');
     var count = liEls.length;
     if (count > this.slides.length) count = this.slides.length;
     else this.slides.length = count;
-    for (s=0;s<count;s++) this.slides[s].attach(this, liEls[s]);
+    for (s=0;s<count;s++) this.slides[s].attach(this, liEls[s], s);
 
     this.select(0);
     if (this.autoplay) this.play();
@@ -129,7 +130,7 @@ DGE_SlideShow.prototype.select = function(slide)
 
 	// First up, get the main image loading, but hide it for now
 	// until it loads.
-	this.image.style.display = 'none';
+	DGE_applyClass(this.image, 'loading');
 	this.slides[slide].loadImage();
 
 	// Set the link target
@@ -176,7 +177,7 @@ DGE_SlideShow.prototype.select = function(slide)
 		s.preloadImage();
 	    }
 	    // Finally show it
-	    s.node.style.display='inline';
+	    s.showThumb();
 	}
     }
 }
@@ -202,7 +203,7 @@ DGE_SlideShow.prototype.displaySlide = function(slide)
     }
     this.imgwrap.style.width = this.image.style.width;
     this.imgwrap.style.height = this.image.style.height;
-    this.image.style.display = 'inline';
+    DGE_revokeClass(this.image, 'loading');
 }
 
 // ----------------------------------------------------------------------
@@ -224,16 +225,30 @@ function DGE_Slide(href, imagesrc)
     this.imageAborted = false;
 }
 
-DGE_Slide.prototype.attach = function(slideshow, liNode)
+DGE_Slide.prototype.attach = function(slideshow, liNode, index)
 {
     this.slideshow = slideshow;
     this.node = liNode;
+    liNode.slideshow = slideshow;
+    liNode.ss_index = index;
+    liNode.onclick = this.onclick;
+}
+
+DGE_Slide.prototype.onclick = function()
+{
+    // 'this' is the li element
+    this.slideshow.select(this.ss_index);
+    this.slideshow.pause();
+}
+
+DGE_Slide.prototype.showThumb = function()
+{
+    this.node.className = 'show';
 }
 
 DGE_Slide.prototype.hideThumb = function()
 {
-    this.node.className='';
-    this.node.style.display='none';
+    this.node.className='hide';
     this.image.onload = DGE_Slide.prototype.onImagePreload;
 }
 
@@ -320,20 +335,22 @@ function DGE_applyClass(el, className)
 {
     if (el.className.length == 0)
 	el.className = className;
-    else
+    else if (el.className.indexOf(className) < 0)
 	el.className += ' ' + className;
 }
 
 function DGE_revokeClass(el, className)
 {
-    var pos = el.className.indexOf(className);
-    if (pos >= 0)
+    var result = '';
+    var remain = el.className;
+    var pos = remain.indexOf(className);
+    while (pos >= 0)
     {
 	// todo - this isn't robust enough. It could mangle other
-	// class names beginning with the supplied class, and also
-	// won't remove multiple appearances.
-	var result = el.className.substr(0, pos);
-	result += el.className.substr(pos+className.length);
-	el.className = result;
+	// class names beginning with the supplied class.
+        result += remain.substr(0, pos);
+        remain = remain.substr(pos+className.length);
+	pos = remain.indexOf(className);
     }
+    el.className = result + remain;
 }

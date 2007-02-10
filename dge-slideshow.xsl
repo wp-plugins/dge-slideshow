@@ -25,12 +25,12 @@
     <div class="ss-container" id="{concat('ss-',$ssid)}">
     <div class="ss-menu">
       <ul>
-	<li class="ss-first"><span>first</span></li>
-	<li class="ss-prev"><span>previous</span></li>
-	<li class="ss-play"><span>play</span></li>
-	<li class="ss-pause"><span>pause</span></li>
-	<li class="ss-next"><span>next</span></li>
-	<li class="ss-last"><span>last</span></li>
+	<li class="ss-first"><div><span>first</span></div></li>
+	<li class="ss-prev"><div><span>previous</span></div></li>
+	<li class="ss-play"><div><span>play</span></div></li>
+	<li class="ss-pause"><div><span>pause</span></div></li>
+	<li class="ss-next"><div><span>next</span></div></li>
+	<li class="ss-last"><div><span>last</span></div></li>
       </ul>
     </div>
     <div class="ss-display">
@@ -40,7 +40,7 @@
       <xsl:for-each select="slide">
         <xsl:sort select="position()" data-type="number" order="{$order}" />
         <xsl:if test="not($limit) or position()&lt;=$limit">
-          <li><img src="{@thumb}" alt="{@title}" title="{@title}" onclick="{$ssid}.select({position()-1})" /></li>
+          <li><img src="{@thumb}" alt="{@title}" title="{@title}" /></li>
         </xsl:if>
       </xsl:for-each>
     </ul></div>
