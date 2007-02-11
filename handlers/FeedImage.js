@@ -26,7 +26,6 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
     this.imagesrc = link.firstChild.nodeValue;
     // finish setting up the link
     this.link.setAttribute('href',link.getAttribute('href'));
-    this.imageEl.setAttribute('class', 'ss-imgwrap');
 
     // Defer setting the image source until we get a display or
     // preload call
