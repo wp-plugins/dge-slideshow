@@ -13,11 +13,12 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
 
     this.wrapper = document.createElement('div');
     this.link = document.createElement('a');
-    this.image = document.createElement('img');
+    this.imageEl = document.createElement('img');
+    this.image = new Image();
 
     // set up hierarchy
     this.wrapper.appendChild(this.link);
-    this.link.appendChild(this.image);
+    this.link.appendChild(this.imageEl);
 
     // rip out the anchor
     var link = liNode.getElementsByTagName('a').item(0);
@@ -25,7 +26,7 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
     this.imagesrc = link.firstChild.nodeValue;
     // finish setting up the link
     this.link.setAttribute('href',link.getAttribute('href'));
-    this.image.setAttribute('class', 'ss-imgwrap');
+    this.imageEl.setAttribute('class', 'ss-imgwrap');
 
     // Defer setting the image source until we get a display or
     // preload call
@@ -36,11 +37,6 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
     this.imageLoaded = false;
     this.imageError = false;
     this.imageAborted = false;
-
-    // Setup onclick event handler
-    liNode.slideshow = slideshow;
-    liNode.ss_index = index;
-    liNode.onclick = this.onclick;
 }
 
 FeedImage.prototype.previewVisible = function()
@@ -58,24 +54,25 @@ FeedImage.prototype.display = function()
     if (this.imageLoaded)
     {
 	var p = this.slideshow;
+	this.imageEl.src = this.imagesrc;
 	if (p.displayRatio >= this.ratio)
 	{
 	    var width = parseInt(p.displayHeight*this.ratio);
-	    this.image.style.height = p.displayHeight+'px';
-	    this.image.style.width = width+'px';
+	    this.imageEl.style.height = p.displayHeight+'px';
+	    this.imageEl.style.width = width+'px';
 	    this.wrapper.style.top = 0;
 //	    this.wrapper.style.left = parseInt((p.displayWidth-width)/2)+'px';
 	}
 	else
 	{
 	    var height = parseInt(p.displayWidth/this.ratio);
-	    this.image.style.height = height+'px';
-	    this.image.style.width = p.displayWidth+'px';
+	    this.imageEl.style.height = height+'px';
+	    this.imageEl.style.width = p.displayWidth+'px';
 	    this.wrapper.style.top = parseInt((p.displayHeight-height)/2)+'px';
 // 	this.wrapper.style.left = 0;
 	}
-	this.wrapper.style.width = this.image.style.width;
-	this.wrapper.style.height = this.image.style.height;
+	this.wrapper.style.width = this.imageEl.style.width;
+	this.wrapper.style.height = this.imageEl.style.height;
 
 	this.slideshow.display(this.wrapper);
     }
@@ -107,7 +104,7 @@ FeedImage.prototype.startLoading = function()
     if (!this.imageLoading)
     {
 	this.imageLoading = true;
-	this.image.src = this.imagesrc;
+	this.image.src = this.imagesrc; // start it loading
 //	DGE_applyClass(this.node.firstChild, 'loading');
     }
 }

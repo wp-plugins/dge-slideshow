@@ -210,10 +210,10 @@ function dge_ss_insertHeader()
 	'js/dge-xp.js"></script>'."\n";
     echo '<script type="text/javascript" src="'.$path.
 	'js/dge-paginator.js"></script>'."\n";
-    echo '<!-- page handlers -->\n';
+    echo "<!-- page handlers -->\n";
     echo '<script type="text/javascript" src="'.$path.
 	'handlers/FeedImage.js"></script>'."\n";
-    echo "\n<!-- end DGE_SlideShow includes -->\n";
+    echo "<!-- end DGE_SlideShow includes -->\n";
 }
 
 function dge_ss_admin()
