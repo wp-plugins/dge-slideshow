@@ -97,7 +97,7 @@ li.ss-pause div { background-image:url("img/pause.png"); }
 .ss-thumbs li.hide {
 	display:none;
 }
-.ss-thumbs li.loading {
+.ss-thumbs li.loading img {
 	opacity:0.5; /* Mozilla and Safari */
 	filter: alpha(opacity=50); /* I.E. */
 }
