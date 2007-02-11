@@ -3,7 +3,7 @@
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
 Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.92.
-Version: 0.31
+Version: 0.39
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
@@ -207,7 +207,13 @@ function dge_ss_insertHeader()
 	    "\n";
     }
     echo '<script type="text/javascript" src="'.$path.
-	'dge-slideshow.js"></script>'."\n\n";
+	'js/dge-xp.js"></script>'."\n";
+    echo '<script type="text/javascript" src="'.$path.
+	'js/dge-paginator.js"></script>'."\n";
+    echo '<!-- page handlers -->\n';
+    echo '<script type="text/javascript" src="'.$path.
+	'handlers/FeedImage.js"></script>'."\n";
+    echo "\n<!-- end DGE_SlideShow includes -->\n";
 }
 
 function dge_ss_admin()
@@ -382,7 +388,7 @@ if ($presets && count($presets)>0)
 function dge_ss_activate()
 {
     // This is version...
-    $nversion = 0.31; // (n for new)
+    $nversion = 0.39; // (n for new)
     // Get the previous version
     $pversion = get_option('dge_ss_version');
 

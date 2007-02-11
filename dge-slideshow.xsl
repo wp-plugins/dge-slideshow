@@ -13,15 +13,6 @@
   <xsl:param name="ssid" />
 
   <xsl:template match="/slideshow">
-    <script language="javascript">
-    var <xsl:value-of select="$ssid"/> = new DGE_SlideShow("<xsl:value-of select="$ssid"/>", <xsl:value-of select="$repeat"/>, <xsl:value-of select="$delay"/>, <xsl:value-of select="$play"/>);
-    <xsl:for-each select="slide">
-      <xsl:sort select="position()" data-type="number" order="{$order}" />
-      <xsl:if test="not($limit) or position()&lt;=$limit">
-        <xsl:value-of select="$ssid"/>.addSlide(new DGE_Slide("<xsl:value-of select="@link"/>", "<xsl:value-of select="@image"/>"));
-      </xsl:if>
-    </xsl:for-each>
-    </script>
     <div class="ss-container" id="{concat('ss-',$ssid)}">
     <div class="ss-menu">
       <ul>
@@ -33,19 +24,19 @@
 	<li class="ss-last"><div><span>last</span></div></li>
       </ul>
     </div>
-    <div class="ss-display">
-      <div class="ss-imgwrap"><a href=""><img src="" /></a></div>
-    </div>
+    <div class="ss-display"><p>preparing...</p></div>
     <div class="ss-thumbs"><ul>
       <xsl:for-each select="slide">
         <xsl:sort select="position()" data-type="number" order="{$order}" />
         <xsl:if test="not($limit) or position()&lt;=$limit">
-          <li><img src="{@thumb}" alt="{@title}" title="{@title}" /></li>
+          <li><div class="ss-preview" rel="ss-preview"><img src="{@thumb}" alt="{@title}" title="{@title}" /></div><div class="ss-slide" rel="FeedImage"><a href="{@link}"><xsl:value-of select="@image"/></a></div></li>
         </xsl:if>
       </xsl:for-each>
     </ul></div>
     </div>
-    <script language="javascript"><xsl:value-of select="$ssid"/>.attach(document.getElementById("ss-<xsl:value-of select="$ssid"/>"));</script>
+    <script type="text/javascript">
+new DGE_Paginator("ss-<xsl:value-of select="$ssid"/>", <xsl:value-of select="$repeat"/>, <xsl:value-of select="$delay"/>, <xsl:value-of select="$play"/>);
+</script>
   </xsl:template>
 
 </xsl:stylesheet>
