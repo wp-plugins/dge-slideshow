@@ -53,25 +53,26 @@
 	height:16px;
 	overflow:hidden;
 	float:left;
-	background-repeat: no-repeat;
+	background: url("img/buttons.gif") top left repeat;
 }
 
 /* --- menu buttons --- */
 
 .ss-playing .ss-play, .ss-paused .ss-pause { display:none; }
 li.ss-play div, li.ss-pause div { margin: 0 4px; }
-li.ss-play div { background-image:url("img/play.png"); }
-li.ss-pause div { background-image:url("img/pause.png"); }
-.ss-first div { background-image:url("img/first.png"); }
-.ss-last div  { background-image:url("img/last.png"); }
-.ss-prev div  { background-image:url("img/prev.png"); }
-.ss-next div  { background-image:url("img/next.png"); }
-.ss-play:hover div  { background-image:url("img/playHover.png"); }
-.ss-pause:hover div { background-image:url("img/pauseHover.png"); }
-.ss-first:hover div { background-image:url("img/firstHover.png"); }
-.ss-last:hover div  { background-image:url("img/lastHover.png"); }
-.ss-prev:hover div  { background-image:url("img/prevHover.png"); }
-.ss-next:hover div  { background-image:url("img/nextHover.png"); }
+
+li.ss-first div { background-position: 0px 0px; }
+li.ss-prev div  { background-position: -16px 0px; }
+li.ss-play div  { background-position: -32px 0px; }
+li.ss-pause div { background-position: -48px 0px; }
+li.ss-next div  { background-position: -64px 0px; }
+li.ss-last div  { background-position: -80px 0px; }
+li.ss-first:hover div { background-position: 0px 16px; }
+li.ss-prev:hover div  { background-position: -16px 16px; }
+li.ss-play:hover div  { background-position: -32px 16px; }
+li.ss-pause:hover div { background-position: -48px 16px; }
+li.ss-next:hover div  { background-position: -64px 16px; }
+li.ss-last:hover div  { background-position: -80px 16px; }
 
 
 /* --- thumbnails --- */
