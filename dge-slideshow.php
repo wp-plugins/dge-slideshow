@@ -29,6 +29,11 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $stage1xsl = "dge-slideshow/rssfeed.xsl";
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
 
+    // defaults
+    $repeat = 0;
+    $delay = 3000;
+    $play = 0;
+
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
     if (array_key_exists('preset', $params))
@@ -48,15 +53,15 @@ function DGE_SlideShow($ssid, $url, $params=array())
     if (array_key_exists('limit', $params))
 	$xsltParams['limit'] = $params['limit'];
     if (array_key_exists('delay', $params))
-	$xsltParams['delay'] = $params['delay'];
+	$delay = $params['delay'];
     if (array_key_exists('repeat', $params))
-	$xsltParams['repeat'] = '1';
+	$repeat = 1;
     if (array_key_exists('norepeat', $params))
-	$xsltParams['repeat'] = '0';
+	$repeat = 0;
     if (array_key_exists('play', $params))
-	$xsltParams['play'] = '1';
+	$play = 1;
     if (array_key_exists('pause', $params))
-	$xsltParams['play'] = '0';
+	$play = 0;
     // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
 	$stage1xsl = $params['xslt'];
@@ -107,6 +112,29 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	    $writefile = TRUE;
         }
 
+	$output = "
+    <!-- DGE_SlideShow ".get_option('dge_ss_version')." -->
+    <div class=\"ss-container\" rel=\"ss-instance\" id=\"ss-$ssid\">
+    <div class=\"ss-menu\" rel=\"ss-menu\">
+      <ul>
+	<li class=\"ss-first\"><div><span>first</span></div></li>
+	<li class=\"ss-prev\"><div><span>previous</span></div></li>
+	<li class=\"ss-play\"><div><span>play</span></div></li>
+	<li class=\"ss-pause\"><div><span>pause</span></div></li>
+	<li class=\"ss-next\"><div><span>next</span></div></li>
+	<li class=\"ss-last\"><div><span>last</span></div></li>
+      </ul>
+    </div>
+    <div class=\"ss-display\" rel=\"ss-display\"><p></p></div>
+    <div class=\"ss-thumbs\" rel=\"ss-thumbs\"><ul>
+      $output
+    </ul></div>
+    </div>
+    <script type=\"text/javascript\">
+    new DGE_Paginator(\"ss-$ssid\", $repeat, $delay, $play);
+    </script>
+    <!-- end DGE_SlideShow -->\n";
+
 	if ($writefile)
 	{
 	    if (!($handle = fopen($cachefile,'w')))
@@ -120,7 +148,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	// We have a local copy, so fetch it.
 	$output = file_get_contents($cachefile);
     }
-    return "<!-- DGE_SlideShow ".get_option('dge_ss_version')." -->".$output;
+    return $output;
 }
 
 // This is a Wordpress content filter that replaces occurrences of the

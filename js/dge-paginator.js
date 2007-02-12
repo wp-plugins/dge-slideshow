@@ -14,15 +14,22 @@ function DGE_Paginator(nodeId, repeat, delay, autoplay)
     this.clock = null;
     this.count = 1;
 
-    if (this.node && this.node.className == 'ss-container')
+    if (this.node && this.node.getAttribute('rel') == 'ss-instance')
     {
 	// Install this into the node so the timeout has a handle on it.
 	this.node.paginator = this;
 
-	// Grab the rest of the nodes
-	this.menu = this.node.childNodes[0];
-	this.displayNode = this.node.childNodes[1];
-	this.thumbs = this.node.childNodes[2];
+	// Grab the constituent nodes
+	for (i=0;i<this.node.childNodes.length;i++)
+	{
+	    var child = this.node.childNodes[i];
+	    switch (child.getAttribute && child.getAttribute('rel'))
+	    {
+	    case 'ss-menu': this.menu = child; break;
+	    case 'ss-display': this.displayNode = child; break;
+	    case 'ss-thumbs': this.thumbs = child; break;
+	    }
+	}
 
 	// and some info for resizing
 	this.displayWidth = parseFloat(DGE_getStyle(this.displayNode, 'width'));
@@ -154,7 +161,8 @@ DGE_Paginator.prototype.select = function(page)
 
 DGE_Paginator.prototype.display = function(node)
 {
-    this.displayNode.removeChild(this.displayNode.firstChild);
+    if (this.displayNode.firstChild)
+        this.displayNode.removeChild(this.displayNode.firstChild);
     this.displayNode.appendChild(node);
     DGE_revokeClass(this.displayNode, 'loading');
 }
@@ -177,7 +185,7 @@ function DGE_PaginatorPage(paginator, liNode, index)
 	case 'ss-preview':
 	    this.previewNode = child;
 	    break;
-	case '':
+	case null:
 	    // do nothing
 	    break;
 	default:
