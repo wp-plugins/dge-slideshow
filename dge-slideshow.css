@@ -20,6 +20,7 @@
 	padding: 4px;
 }
 .ss-container div.ss-display div {
+	position: relative;
 	margin: 0 auto;
 }
 .ss-container div.ss-display .loading {
