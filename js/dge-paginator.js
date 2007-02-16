@@ -63,19 +63,58 @@ DGE_Paginator.prototype.play = function()
 {
     if (this.current < this.pages.length-1 || this.repeat)
     {
+	// If it's still loading, delay playing until it loads
+	// (i.e. the next display() call).
+	if (this.pages[this.current].loading())
+	{
+	    this.setWaiting();
+	}
+	else
+	{
+	    clearInterval(this.clock);
+	    this.clock = setInterval('document.getElementById("'+this.nodeId+'").paginator.playTimeout();', this.delay);
+	}
+	// Either way, apply class now so that the play button changes
+	// to pause.
 	DGE_revokeClass(this.node,'ss-paused');
 	DGE_applyClass(this.node,'ss-playing');
-	clearInterval(this.clock);
-	this.clock = setInterval('document.getElementById("'+this.nodeId+'").paginator.nextPage();', this.delay);
+    }
+}
+
+DGE_Paginator.prototype.playTimeout = function()
+{
+    this.nextPage();
+    // If it's still loading, suspend playing until it loads (i.e. the
+    // next display() call).
+    if (this.pages[this.current].loading())
+	this.setWaiting();
+}
+
+DGE_Paginator.prototype.setWaiting = function()
+{
+    DGE_applyClass(this.node,'waiting');
+    clearInterval(this.clock);
+    this.waiting = true;
+}
+
+DGE_Paginator.prototype.clearWaiting = function()
+{
+    if (this.waiting)
+    {
+	DGE_revokeClass(this.node,'waiting');
+	this.waiting = false;
+	// resume play where we left off
+	this.play();
     }
 }
 
 DGE_Paginator.prototype.pause = function()
 {
-    DGE_revokeClass(this.node,'ss-playing');
-    DGE_applyClass(this.node,'ss-paused');
+    this.waiting = false;
     clearInterval(this.clock);
     this.clock = null;
+    DGE_revokeClass(this.node,'ss-playing');
+    DGE_applyClass(this.node,'ss-paused');
 }
 
 DGE_Paginator.prototype.nextPage = function()
@@ -165,6 +204,8 @@ DGE_Paginator.prototype.display = function(node)
         this.displayNode.removeChild(this.displayNode.firstChild);
     this.displayNode.appendChild(node);
     DGE_revokeClass(this.displayNode, 'loading');
+    // Resume playing if we got stuck waiting for an image to load
+    this.clearWaiting();
 }
 
 // ----------------------------------------------------------------------
@@ -254,4 +295,9 @@ DGE_PaginatorPage.prototype.hidePreview = function()
 DGE_PaginatorPage.prototype.display = function()
 {
     if (this.pageHandler) this.pageHandler.display();
+}
+
+DGE_PaginatorPage.prototype.loading = function()
+{
+    return this.pageHandler && this.pageHandler.loading();
 }
