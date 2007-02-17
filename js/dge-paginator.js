@@ -2,17 +2,19 @@
 // DGE_Paginator constructor and methods
 // ----------------------------------------------------------------------
 
-function DGE_Paginator(nodeId, repeat, delay, autoplay)
+function DGE_Paginator(nodeId, autoplay, settings)
 {
     // setup member variables
     this.nodeId = nodeId;
     this.node = document.getElementById(nodeId);
-    this.repeat = repeat;
-    this.delay = delay;
     this.pages = new Array();
     this.current = -1;
     this.clock = null;
-    this.count = 1;
+
+    // settings
+    this.repeat = settings.repeat;
+    this.delay = settings.delay;
+    this.thumbsAcross = settings.thumbs;
 
     if (this.node && this.node.getAttribute('rel') == 'ss-instance')
     {
@@ -174,20 +176,20 @@ DGE_Paginator.prototype.select = function(page)
 
 	// Now sort out the previews
 	var i, end, start;
-	if (this.pages.length < 5)
+	if (this.pages.length < this.thumbsAcross)
 	{
 	    start = 0;
 	    end = this.pages.length;
 	}
 	else
 	{
-	    start = page - 2;
+	    start = page - parseInt((this.thumbsAcross-1)/2.0);
 	    if (start < 0) start = 0;
-	    end = start + 5;
+	    end = start + this.thumbsAcross;
 	    if (end > this.pages.length)
 	    {
 		end = this.pages.length;
-		start = end - 5;
+		start = end - this.thumbsAcross;
 	    }
 	}
 	// Clear down items outwith range

@@ -3,7 +3,7 @@
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
 Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.92.
-Version: 0.39
+Version: 0.391
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
@@ -30,9 +30,11 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
 
     // defaults
-    $repeat = 0;
-    $delay = 3000;
-    $play = 0;
+    $play = intval(get_option('dge_ss_def_play')) != 0;
+    $repeat = intval(get_option('dge_ss_def_repeat')) != 0;
+    $delay = floatval(get_option('dge_ss_def_delay'))*1000;
+    $thumbs = intval(get_option('dge_ss_def_thumbs'));
+    $timeout = intval(get_option('dge_ss_def_timeout'));
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
@@ -46,8 +48,6 @@ function DGE_SlideShow($ssid, $url, $params=array())
     }
     if (array_key_exists('timeout', $params))
 	$timeout = intval($params['timeout']);
-    else
-	$timeout = get_option('dge_ss_def_timeout');
     if (array_key_exists('reverse', $params))
 	$xsltParams['order'] = "descending";
     if (array_key_exists('limit', $params))
@@ -62,6 +62,8 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$play = 1;
     if (array_key_exists('pause', $params))
 	$play = 0;
+    if (array_key_exists('thumbs', $params))
+	$thumbs = $params['thumbs'];
     // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
 	$stage1xsl = $params['xslt'];
@@ -131,7 +133,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     </ul></div>
     </div>
     <script type=\"text/javascript\">
-    new DGE_Paginator(\"ss-$ssid\", $repeat, $delay, $play);
+    new DGE_Paginator(\"ss-$ssid\", $play, {'repeat':$repeat,'delay':$delay,'thumbs':$thumbs});
     </script>
     <!-- end DGE_SlideShow -->\n";
 
@@ -252,6 +254,25 @@ function dge_ss_admin()
     }
 }
 
+function dge_ss_updateOption($postvar, $option, $type)
+{
+    if (isset($_POST[$postvar]))
+    {
+	$v = $_POST[$postvar];
+	if ($v != '')
+	{
+	    if ($type == 'int') $v = intval($v);
+	    else if ($type == 'float') $v = floatval($v);
+	    if ($v != get_option($option))
+	    {
+		update_option($option, $v);
+		return TRUE;
+	    }
+	}
+    }
+    return FALSE;
+}
+
 function dge_ss_posttoggle($postvar, $option, $onString, $offString)
 {
     if (isset($_POST[$postvar]))
@@ -284,23 +305,12 @@ function dge_ss_subpanel()
 	// ------------------------------------------------------------
 	// DEFAULTS
 	// ------------------------------------------------------------
-	if (isset($_POST['def_timeout']))
-	{
-	    $timeout = $_POST['def_timeout'];
-	    if ($timeout == '')
-	    {
-		$updateText .= "<p><strong>Default timeout not updated. Invalid input.</strong></p>\n";
-	    }
-	    else
-	    {
-		$timeout = intval($timeout);
-		if ($timeout != get_option('dge_ss_def_timeout'))
-		{
-		    update_option('dge_ss_def_timeout', $timeout);
-		    $updateText .= "<p>Default timeout updated.</p>\n";
-		}
-	    }
-	}
+	if (dge_ss_updateOption('def_timeout', 'dge_ss_def_timeout', 'int'))
+	    $updateText .= "<p>Default timeout updated.</p>\n";
+	if (dge_ss_updateOption('def_thumbs', 'dge_ss_def_thumbs', 'int'))
+	    $updateText .= "<p>Default thumbnail count updated.</p>\n";
+	if (dge_ss_updateOption('def_delay', 'dge_ss_def_delay', 'float'))
+	    $updateText .= "<p>Default play delay updated.</p>\n";
 	// Include CSS in header toggled?
 	$updateText .= dge_ss_posttoggle(
 	    'inc_css', 'dge_ss_inc_css',
@@ -311,6 +321,16 @@ function dge_ss_subpanel()
 	    'mo_snip', 'dge_ss_mo_snip',
 	    "<p>Using standard image size by default.</p>\n",
 	    "<p>Using feed's image size by default.</p>\n");
+	// Repeat by default?
+	$updateText .= dge_ss_posttoggle(
+	    'def_repeat', 'dge_ss_def_repeat',
+	    "<p>Slideshows repeat by default.</p>\n",
+	    "<p>Slideshows do not repeat by default.</p>\n");
+	// Autoplay by default?
+	$updateText .= dge_ss_posttoggle(
+	    'def_play', 'dge_ss_def_play',
+	    "<p>Slideshows start playing automatically by default.</p>\n",
+	    "<p>Slideshows do not start playing automatically by default.</p>\n");
 
 	// ------------------------------------------------------------
 	// PRESETS
@@ -370,13 +390,20 @@ function dge_ss_subpanel()
  ?>
 <div class="wrap">
   <form method="post">
-    <h2>Slideshow Options</h2>
+    <h2>Slideshow Options (v<?php echo get_option('dge_ss_version'); ?>)</h2>
 
+    <h3>Settings</h3>
+    <div><table>
+    <tr><td>Include CSS</td><td><input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></td><td>Includes default CSS rules in the header of each page.</td></tr>
+    <tr><td>Standard sizes</td><td><input type="checkbox" name="mo_snip" value="1"<?php if (get_option('dge_ss_mo_snip')) echo ' checked="true"'; ?>/></td><td>Tries to pick the standard size image (usually max 500 in any dimension). Basically, it avoids loading of enormous images from Flickr feeds, or too small images from Zooomr feeds.</td></tr>
+    </table></div>
     <h3>Defaults</h3>
     <div><table>
-    <tr><td>Timeout (mins)</td><td><input type="text" name="def_timeout" value="<?php echo get_option('dge_ss_def_timeout'); ?>"/></td><td><i>The default time to wait before refreshing the feed cache.</i></td></tr>
-    <tr><td>Include CSS</td><td><input type="checkbox" name="inc_css" value="1"<?php if (get_option('dge_ss_inc_css')) echo ' checked="true"'; ?>/></td><td><i>Includes default CSS rules in the header of each page.</i></td></tr>
-    <tr><td>Standard sizes</td><td><input type="checkbox" name="mo_snip" value="1"<?php if (get_option('dge_ss_mo_snip')) echo ' checked="true"'; ?>/></td><td><i>Tries to pick the standard size image (usuall max 500 in any dimension). Basically, it avoids loading of enormous images from Flickr feeds, or too small images from Zooomr feeds.</i></td></tr>
+    <tr><td>Timeout (mins)</td><td><input type="text" name="def_timeout" value="<?php echo intval(get_option('dge_ss_def_timeout')); ?>"/></td><td>The default time to wait before refreshing the feed cache. Override with 'timeout=<i>n</i>'.</td></tr>
+    <tr><td>Thumbnails</td><td><input type="text" name="def_thumbs" value="<?php echo intval(get_option('dge_ss_def_thumbs')); ?>"/></td><td>The default number of thumbs to show in each slideshow. Override with 'thumbs=<i>n</i>'.</td></tr>
+    <tr><td>Play delay (secs)</td><td><input type="text" name="def_delay" value="<?php echo floatval(get_option('dge_ss_def_delay')); ?>"/></td><td>The default number of seconds to wait before advancing to the next slide. Override with 'delay=<i>n</i>'.</td></tr>
+    <tr><td>Auto play</td><td><input type="checkbox" name="def_play" value="1"<?php if (get_option('dge_ss_def_play')) echo ' checked="true"'; ?>/></td><td>Start playing slideshows automatically. Override with 'play' or 'pause' options.</td></tr>
+    <tr><td>Repeat</td><td><input type="checkbox" name="def_repeat" value="1"<?php if (get_option('dge_ss_def_repeat')) echo ' checked="true"'; ?>/></td><td>Return to the start of the slideshow when the end is reached. Override with 'repeat' or 'norepeat' options.</td></tr>
     </table></div>
 
     <h3>Presets</h3>
@@ -385,7 +412,7 @@ function dge_ss_subpanel()
 if ($presets && count($presets)>0)
 {
     echo "        <tr><td colspan=\"3\"><b>Existing Presets</b></td><tr>\n";
-    echo "        <tr><td colspan=\"3\"><i>To remove an existing preset, just delete the settings in the text field.</i></td></tr>\n";
+    echo "        <tr><td colspan=\"3\">To remove an existing preset, just delete the settings in the text field.</td></tr>\n";
     foreach ($presets as $name=>$value)
     {
 	echo "      <tr><td>$name</td>";
@@ -416,7 +443,7 @@ if ($presets && count($presets)>0)
 function dge_ss_activate()
 {
     // This is version...
-    $nversion = 0.39; // (n for new)
+    $nversion = 0.391; // (n for new)
     // Get the previous version
     $pversion = get_option('dge_ss_version');
 
@@ -435,6 +462,13 @@ function dge_ss_activate()
 	add_option('dge_ss_inc_css', 1, 'Include CSS', 'yes');
 	add_option('dge_ss_mo_snip', 1, 'Standard image', 'no');
 	add_option('dge_ss_presets', array(), 'Presets', 'no');
+    }
+    if ($pversion < 0.391)
+    {
+	add_option('dge_ss_def_delay', 4, 'Default play delay', 'yes');
+	add_option('dge_ss_def_thumbs', 5, 'Default thumbnail count', 'yes');
+	add_option('dge_ss_def_play', 0, 'Default autoplay', 'no');
+	add_option('dge_ss_def_repeat', 0, 'Default repeat', 'no');
     }
 }
 
