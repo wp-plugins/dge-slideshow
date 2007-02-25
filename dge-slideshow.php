@@ -30,9 +30,9 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
 
     // defaults
-    $play = intval(get_option('dge_ss_def_play')) != 0;
-    $repeat = intval(get_option('dge_ss_def_repeat')) != 0;
-    $delay = floatval(get_option('dge_ss_def_delay'))*1000;
+    $play = intval(get_option('dge_ss_def_play'));
+    $repeat = intval(get_option('dge_ss_def_repeat'));
+    $delay = floatval(get_option('dge_ss_def_delay'));
     $thumbs = intval(get_option('dge_ss_def_thumbs'));
     $timeout = intval(get_option('dge_ss_def_timeout'));
 
@@ -133,7 +133,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     </ul></div>
     </div>
     <script type=\"text/javascript\">
-    new DGE_Paginator(\"ss-$ssid\", $play, {'repeat':$repeat,'delay':$delay,'thumbs':$thumbs});
+    new DGE_Paginator(\"ss-$ssid\", {'play':".($play?'true':'false').",'repeat':".($repeat?'true':'false').",'delay':$delay,'thumbs':$thumbs});
     </script>
     <!-- end DGE_SlideShow -->\n";
 

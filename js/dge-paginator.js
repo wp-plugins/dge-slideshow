@@ -2,7 +2,13 @@
 // DGE_Paginator constructor and methods
 // ----------------------------------------------------------------------
 
-function DGE_Paginator(nodeId, autoplay, settings)
+// defaults
+DGE_Paginator.prototype.autoPlay = true;
+DGE_Paginator.prototype.repeat = false;
+DGE_Paginator.prototype.delay = 3;
+DGE_Paginator.prototype.nThumbs = 5;
+
+function DGE_Paginator(nodeId, settings)
 {
     // setup member variables
     this.nodeId = nodeId;
@@ -11,11 +17,16 @@ function DGE_Paginator(nodeId, autoplay, settings)
     this.current = -1;
     this.clock = null;
 
-    // settings
-    this.repeat = settings.repeat;
-    this.delay = settings.delay;
-    this.thumbsAcross = settings.thumbs;
+    // override defaults with settings
+    if (settings != undefined)
+    {
+	if (settings.play != undefined) this.autoPlay = settings.play;
+	if (settings.repeat != undefined) this.repeat = settings.repeat;
+	if (settings.delay != undefined) this.delay = settings.delay*1000;
+	if (settings.thumbs != undefined) this.nThumbs = settings.thumbs;
+    }
 
+    // Start hooking things up.
     if (this.node && this.node.getAttribute('rel') == 'ss-instance')
     {
 	// Install this into the node so the timeout has a handle on it.
@@ -51,7 +62,7 @@ function DGE_Paginator(nodeId, autoplay, settings)
 	    this.pages.push(new DGE_PaginatorPage(this, liEls[s], s));
 
 	this.select(0);
-	if (autoplay) this.play();
+	if (this.autoPlay) this.play();
 	else this.pause();
     }
 }
@@ -176,20 +187,20 @@ DGE_Paginator.prototype.select = function(page)
 
 	// Now sort out the previews
 	var i, end, start;
-	if (this.pages.length < this.thumbsAcross)
+	if (this.pages.length < this.nThumbs)
 	{
 	    start = 0;
 	    end = this.pages.length;
 	}
 	else
 	{
-	    start = page - parseInt((this.thumbsAcross-1)/2.0);
+	    start = page - parseInt((this.nThumbs-1)/2.0);
 	    if (start < 0) start = 0;
-	    end = start + this.thumbsAcross;
+	    end = start + this.nThumbs;
 	    if (end > this.pages.length)
 	    {
 		end = this.pages.length;
-		start = end - this.thumbsAcross;
+		start = end - this.nThumbs;
 	    }
 	}
 	// Clear down items outwith range
