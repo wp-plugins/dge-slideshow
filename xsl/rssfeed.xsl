@@ -18,7 +18,7 @@
 
   <xsl:template match="*">
     <xsl:for-each select="item">
-      <image
+      <slide
 	link="{link}"
 	image="{media:content/@url}"
 	thumb="{media:thumbnail/@url}"
