@@ -1,4 +1,4 @@
-=== Staticize Reloaded ===
+=== DGE_Slideshow ===
 Tags: slideshow, zooomr, flickr, xsl, xslt, javascript
 Contributors: delcock
 
