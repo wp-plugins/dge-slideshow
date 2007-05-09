@@ -27,6 +27,11 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
     // finish setting up the link
     this.link.setAttribute('href',link.getAttribute('href'));
 
+    // find the image title and set it in our image element.
+    var title = liNode.getElementsByTagName('img').item(0).getAttribute('title');
+    this.imageEl.setAttribute('title', title);
+    this.imageEl.setAttribute('alt', title);
+
     // Defer setting the image source until we get a display or
     // preload call
     this.image.slide = this;
