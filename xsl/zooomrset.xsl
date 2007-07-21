@@ -8,20 +8,20 @@
   <xsl:include href="zf-hack.xsl" />
   <xsl:output omit-xml-declaration="yes" method="xml"/>
 
-  <xsl:template match="/xhtml:html">
+  <xsl:template match="/html">
     <slideshow xmlns="">
-    <xsl:apply-templates select="xhtml:body/xhtml:div/xhtml:div/xhtml:div/xhtml:div/xhtml:div[@id='right_area']" />
+    <xsl:apply-templates select="id('SetView')" />
     </slideshow>
   </xsl:template>
 
-  <xsl:template match="*">
-      <xsl:for-each select="xhtml:div/xhtml:div/xhtml:a">
+  <xsl:template match="table">
+    <xsl:for-each select="tr/td/table/tr/td/div/div/a">
         <xsl:call-template name="zf-hack">
-          <xsl:with-param name="link" select="concat('http://beta.zooomr.com',@href)"/>
-          <xsl:with-param name="thumb" select="xhtml:img/@src" />
-          <xsl:with-param name="title" select="xhtml:img/@alt" />
+          <xsl:with-param name="link" select="concat('http://www.zooomr.com',@href)"/>
+          <xsl:with-param name="thumb" select="img/@src" />
+          <xsl:with-param name="title" select="img/@alt" />
         </xsl:call-template>
-      </xsl:for-each>
+    </xsl:for-each>
   </xsl:template>
 
 </xsl:stylesheet>
