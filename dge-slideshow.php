@@ -35,6 +35,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $delay = floatval(get_option('dge_ss_def_delay'));
     $thumbs = intval(get_option('dge_ss_def_thumbs'));
     $timeout = intval(get_option('dge_ss_def_timeout'));
+    $html = 0;
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
@@ -64,6 +65,8 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$play = 0;
     if (array_key_exists('thumbs', $params))
 	$thumbs = $params['thumbs'];
+    if (array_key_exists('html', $params))
+	$html = 1;
     // This must go last, to override any preset xsl files
     if (array_key_exists('xslt', $params))
 	$stage1xsl = $params['xslt'];
@@ -87,6 +90,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	$stage1xml = "<?xml version=\"1.0\"?>\n";
 	$stage1xml .= DGE_InlineRSS($inlineRSSname, $url,
 				    array('timeout'=>0,
+					  'html'=>$html,
 					  'xslt'=>$stage1xsl));
 	$stage2xml = DGE_InlineRSS($inlineRSSname, '',
 				   array('xml'=>$stage1xml,
