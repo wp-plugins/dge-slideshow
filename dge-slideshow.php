@@ -2,7 +2,7 @@
 /*
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
-Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.92.
+Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.93.
 Version: 0.392
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
