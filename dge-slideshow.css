@@ -3,20 +3,32 @@
 .ss-container {
 	margin-top: 1em;
 }
+.ss-maximised {
+	background-color:#333333;
+	z-index:100;
+}
 .ss-container img {
 	margin:0;
 }
+.ss-container div.ss-wrapper {
+	background-color:#73A0C5;
+	margin:0 auto;
+	padding-bottom:2px;
+	position:relative;
+	width: 385px;
+}
+/* This is the tan hack. Only IE can see it. */
+* html div.ss-wrapper {
+	/* See http://www.quirksmode.org/css/tests/ie5win_relative.html
+	 * Specify a height to get absolute positioning within this *
+	 * relative div working properly.                           */
+	height: 100%; /* IE5/Win */
+	h\eight: auto; /* IE6 IE5/Mac */
+}
 .ss-container div.ss-display {
-	margin: 0 auto;
-	border: 2px solid #73a0c5;
-	border-top: 0;
-	background-color: #e5e6e7;
-	background-image: url("img/loading.png");
-	background-repeat: no-repeat;
-	background-position: center center;
-	width:373px;
+	margin:0 2px 77px;
+	background: #e5e6e7 url("img/loading.png") no-repeat center;
 	height:250px;
-	position:static;
 	padding: 4px;
 }
 .ss-container div.ss-display div {
@@ -30,10 +42,9 @@
 /* --- menu --- */
 
 .ss-menu {
-	width:88px;
-	background-color: #73a0c5;
+	width:108px;
 	margin:0 auto;
-	padding: 2px 148px 2px 149px;
+	padding:2px;
 }
 .ss-menu ul {
 	height:16px;
@@ -59,8 +70,14 @@
 
 /* --- menu buttons --- */
 
-.ss-playing .ss-play, .ss-paused .ss-pause { display:none; }
+.ss-playing .ss-play,
+.ss-paused .ss-pause,
+.ss-maximised .ss-maximise,
+.ss-minimised .ss-minimise {
+	display:none;
+}
 li.ss-play div, li.ss-pause div { margin: 0 4px; }
+li.ss-maximise div, li.ss-maximise div { margin: 0 0 0 4px; }
 
 li.ss-first div { background-position: 0px 0px; }
 li.ss-prev div  { background-position: -16px 0px; }
@@ -68,21 +85,30 @@ li.ss-play div  { background-position: -32px 0px; }
 li.ss-pause div { background-position: -48px 0px; }
 li.ss-next div  { background-position: -64px 0px; }
 li.ss-last div  { background-position: -80px 0px; }
+li.ss-maximise div { background-position: -96px 0px; }
+li.ss-minimise div { background-position: -112px 0px; }
 li.ss-first:hover div { background-position: 0px 16px; }
 li.ss-prev:hover div  { background-position: -16px 16px; }
 li.ss-play:hover div  { background-position: -32px 16px; }
 li.ss-pause:hover div { background-position: -48px 16px; }
 li.ss-next:hover div  { background-position: -64px 16px; }
 li.ss-last:hover div  { background-position: -80px 16px; }
-
+li.ss-maximise:hover div { background-position: -96px 16px; }
+li.ss-minimise:hover div { background-position: -112px 16px; }
 
 /* --- thumbnails --- */
 
 .ss-thumbs {
-	margin: 0 auto;
+	margin:0 -191px;
 	width:381px;
-	border: 2px solid #73a0c5;
-	border-top: 0;
+	background-color:white;
+	position:absolute;
+	bottom:1px;
+	left:50%;
+}
+* html .ss-thumbs {
+	margin:0 -190px;
+	bottom:0;
 }
 .ss-thumbs ul {
 	height: 77px;
@@ -91,10 +117,7 @@ li.ss-last:hover div  { background-position: -80px 16px; }
 }
 .ss-thumbs li {
 	list-style-type: none;
-	list-style-image: none;
-	margin: 0;
-	padding: 0;
-	display:inline;
+	float: left;
 }
 .ss-thumbs li.hide {
 	display:none;
@@ -108,8 +131,6 @@ li.ss-last:hover div  { background-position: -80px 16px; }
 	height:75px;
 	cursor:pointer;
 	border:1px solid #73a0c5;
-	overflow:hidden;
-	float:left;
 }
 .ss-thumbs li div.ss-slide {
 	display:none;
@@ -118,8 +139,8 @@ li.ss-last:hover div  { background-position: -80px 16px; }
 	border: 1px solid white;
 }
 .ss-thumbs li.before-selected div {
-	border-right:0;
+	border-right:0 none;
 }
 .ss-thumbs li.after-selected div {
-	border-left:0;
+	border-left:0 none;
 }

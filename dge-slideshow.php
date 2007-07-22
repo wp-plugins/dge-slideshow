@@ -120,7 +120,8 @@ function DGE_SlideShow($ssid, $url, $params=array())
 
 	$output = "
     <!-- DGE_SlideShow ".get_option('dge_ss_version')." -->
-    <div class=\"ss-container\" rel=\"ss-instance\" id=\"ss-$ssid\">
+    <div class=\"ss-container ss-minimised\" rel=\"ss-instance\" id=\"ss-$ssid\">
+    <div class=\"ss-wrapper\" rel=\"ss-wrapper\">
     <div class=\"ss-menu\" rel=\"ss-menu\">
       <ul>
 	<li class=\"ss-first\"><div><span>first</span></div></li>
@@ -129,12 +130,15 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	<li class=\"ss-pause\"><div><span>pause</span></div></li>
 	<li class=\"ss-next\"><div><span>next</span></div></li>
 	<li class=\"ss-last\"><div><span>last</span></div></li>
+	<li class=\"ss-maximise\"><div><span>maximise</span></div></li>
+	<li class=\"ss-minimise\"><div><span>minimise</span></div></li>
       </ul>
     </div>
     <div class=\"ss-display\" rel=\"ss-display\"><p></p></div>
     <div class=\"ss-thumbs\" rel=\"ss-thumbs\"><ul>
       $output
     </ul></div>
+    </div>
     </div>
     <script type=\"text/javascript\">
     new DGE_Paginator(\"ss-$ssid\", {'play':".($play?'true':'false').",'repeat':".($repeat?'true':'false').",'delay':$delay,'thumbs':$thumbs});

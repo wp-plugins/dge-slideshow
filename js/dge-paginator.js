@@ -36,18 +36,25 @@ function DGE_Paginator(nodeId, settings)
 	for (i=0;i<this.node.childNodes.length;i++)
 	{
 	    var child = this.node.childNodes[i];
-	    switch (child.getAttribute && child.getAttribute('rel'))
+	    if (child.getAttribute &&
+		child.getAttribute('rel') == 'ss-wrapper')
 	    {
-	    case 'ss-menu': this.menu = child; break;
-	    case 'ss-display': this.displayNode = child; break;
-	    case 'ss-thumbs': this.thumbs = child; break;
+		this.wrapper = child;
+		for (j=0;j<this.wrapper.childNodes.length;j++)
+		{
+		    child = this.wrapper.childNodes[j];
+		    switch (child.getAttribute && child.getAttribute('rel'))
+		    {
+		    case 'ss-menu': this.menu = child; break;
+		    case 'ss-display': this.displayNode = child; break;
+		    case 'ss-thumbs': this.thumbs = child; break;
+		    }
+		}
 	    }
 	}
 
 	// and some info for resizing
-	this.displayWidth = parseFloat(DGE_getStyle(this.displayNode, 'width'));
-	this.displayHeight = parseFloat(DGE_getStyle(this.displayNode, 'height'));
-	this.displayRatio = this.displayWidth/this.displayHeight;
+	this.resizeDisplay();
 
 	// Hook up play, pause, etc.
 	var menuUL = this.menu.getElementsByTagName('ul').item(0);
@@ -65,6 +72,19 @@ function DGE_Paginator(nodeId, settings)
 	if (this.autoPlay) this.play();
 	else this.pause();
     }
+}
+
+DGE_Paginator.prototype.resizeDisplay = function()
+{
+    this.displayWidth = DGE_getWidth(this.displayNode);
+    this.displayHeight = DGE_getHeight(this.displayNode);
+    this.displayRatio = this.displayWidth/this.displayHeight;
+}
+
+DGE_Paginator.prototype.refreshDisplay = function()
+{
+    this.resizeDisplay();
+    this.pages[this.current].display();
 }
 
 DGE_Paginator.prototype.playing = function()
@@ -101,6 +121,61 @@ DGE_Paginator.prototype.playTimeout = function()
     // next display() call).
     if (this.pages[this.current].loading())
 	this.setWaiting();
+}
+
+DGE_Paginator.prototype.maximise = function()
+{
+    DGE_revokeClass(this.node,'ss-minimised');
+    DGE_applyClass(this.node,'ss-maximised');
+    var pageHeight = DGE_pageHeight();
+    var windowHeight = DGE_windowHeight();
+
+    // Hide the image in the display to avoid confusing IE. It will be
+    // redisplayed at the bottom of this method, at its new size.
+    this.undisplay();
+
+    // Resize the wrapper to fill the screen
+    this.wrapper.style.position = 'absolute';
+    this.wrapper.style.height = (windowHeight-2)+'px';
+    this.wrapper.style.width = document.body.scrollWidth+'px';
+    this.wrapper.style.top = DGE_scrollTop() + 'px';
+    // Resize the main container to fill the entire page, including
+    // what's hidden due to scrolling, and width of entire page.
+    this.node.style.position = 'absolute';
+    this.node.style.margin = 'auto';
+    this.node.style.width = document.body.scrollWidth+'px';
+    this.node.style.height = pageHeight+'px';
+    this.node.style.top = 0;
+    this.node.style.left = 0;
+    // Refit the display node
+    this.displayNode.style.height = (windowHeight - DGE_getHeight(this.menu) - DGE_getHeight(this.thumbs) - 15) + 'px';
+    // Redisplay and sort out new aspect ratios etc.
+    this.refreshDisplay();
+}
+
+DGE_Paginator.prototype.minimise = function()
+{
+    DGE_revokeClass(this.node,'ss-maximised');
+    // Hide the image in the display to avoid confusing IE. It will be
+    // redisplayed at the bottom of this method, at its new size.
+    this.undisplay();
+    // reset display to old size
+    this.displayNode.style.height = '';
+    // reset wrapper to old size
+    this.wrapper.style.position = '';
+    this.wrapper.style.height = '';
+    this.wrapper.style.width = '';
+    this.wrapper.style.top = '';
+    // reset container to old size
+    this.node.style.position = '';
+    this.node.style.margin = '';
+    this.node.style.width = '';
+    this.node.style.height = '';
+    this.node.style.top = '';
+    this.node.style.left = '';
+    // Redisplay and sort out new aspect ratios etc.
+    this.refreshDisplay();
+    DGE_applyClass(this.node,'ss-minimised');
 }
 
 DGE_Paginator.prototype.setWaiting = function()
@@ -171,6 +246,8 @@ DGE_Paginator.prototype.menuHandler = function(event)
     case 'ss-prev': p.prevPage(); p.pause(); break;
     case 'ss-first': p.firstPage(); p.pause(); break;
     case 'ss-last': p.lastPage(); p.pause(); break;
+    case 'ss-maximise': p.maximise(); break;
+    case 'ss-minimise': p.minimise(); break;
     }
 }
 
@@ -211,10 +288,15 @@ DGE_Paginator.prototype.select = function(page)
     }
 }
 
-DGE_Paginator.prototype.display = function(node)
+DGE_Paginator.prototype.undisplay = function()
 {
     if (this.displayNode.firstChild)
         this.displayNode.removeChild(this.displayNode.firstChild);
+}
+
+DGE_Paginator.prototype.display = function(node)
+{
+    this.undisplay();
     this.displayNode.appendChild(node);
     DGE_revokeClass(this.displayNode, 'loading');
     // Resume playing if we got stuck waiting for an image to load
