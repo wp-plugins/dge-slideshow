@@ -157,6 +157,11 @@ slideshow of a Zooomr set with:
 
 	!slideshow!zfaves!http://www.zooomr.com/photos/davee/favorites/!preset=zooomrfaves!
 
+== License ==
+
+This work is licensed under a [Creative Commons
+Attribution-Noncommercial-Share Alike 2.5 License](http://creativecommons.org/licenses/by-nc-sa/2.5/).
+
 == History ==
 
 [Full changelog here](http://dev.wp-plugins.org/log/dge-slideshow/)
