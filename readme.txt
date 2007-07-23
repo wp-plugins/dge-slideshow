@@ -1,5 +1,5 @@
 === DGE_Slideshow ===
-Tags: slideshow, zooomr, flickr, xsl, xslt, javascript
+Tags: slideshow, zooomr, flickr, xsl, xslt, javascript, dhtml, images
 Contributors: delcock
 Requires at least: 2.0
 Tested up to: 2.1
