@@ -1,10 +1,11 @@
 === DGE_Slideshow ===
 Tags: slideshow, zooomr, flickr, xsl, xslt, javascript
 Contributors: delcock
+Requires at least: 2.0
+Tested up to: 2.1
 Stable tag: 0.4
 
-Turns a collection of images (e.g. Flickr or Zooomr image feed) into a
-javascript-based slideshow within a Wordpress post or page.
+Turns a collection of images (e.g. Flickr or Zooomr image feed) into a javascript-based slideshow within a Wordpress post or page.
 
 == Description ==
 
@@ -24,17 +25,17 @@ posting questions etc on the
 
 == Installation ==
 
- 1. Install and activate at least version 0.93 of
-    [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/).
- 2. Make sure inlinerss' cache directory is set up properly. This
-    plugin uses its settings.
- 3. Add `wp-content/plugins` to the inlinerss `XSLT path`
-    setting. This plugin's xslt won't be found otherwise.
- 4. Upload this plugin to the `/wp-content/plugins/`, making sure it
-    is all contained within a sub-folder called `dge-slideshow`.
- 5. Activate the plugin from your wordpress admin menu.
- 6. See the usage instructions below for how to actually get a
-    slideshow up and running.
+1. Install and activate at least version 0.93 of
+   [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/).
+2. Make sure inlinerss' cache directory is set up properly. This
+   plugin uses its settings.
+3. Add `wp-content/plugins` to the inlinerss `XSLT path`
+   setting. This plugin's xslt won't be found otherwise.
+4. Upload this plugin to the `/wp-content/plugins/`, making sure it
+   is all contained within a sub-folder called `dge-slideshow`.
+5. Activate the plugin from your wordpress admin menu.
+6. See the usage instructions below for how to actually get a
+   slideshow up and running.
 
 == Screenshots ==
 
@@ -42,12 +43,12 @@ posting questions etc on the
 
 == Requirements ==
 
- * Javascript.
- * [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/)
-   plugin version 0.93 or greater.
- * Only tested with Wordpress 2.0 and 2.1. I don't know if it'll work
-   with earlier versions.
- * PHP 5.
+* Javascript.
+* [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/)
+  plugin version 0.93 or greater.
+* Only tested with Wordpress 2.0 and 2.1. I don't know if it'll work
+  with earlier versions.
+* PHP 5.
 
 == Examples ==
 
@@ -65,15 +66,15 @@ to `DGE_SlideShow` function. For both methods, the arguments are the
 same, but the call is different.
 
 Both methods of invokation require:
- * a unique id
- * a url to fetch
- * options
+* a unique id
+* a url to fetch
+* options
 
 The id must be unique for each slideshow, and must be a valid
 javascript variable name, with the exception that it may start with a
 number. So it must not contain spaces or dashes, for example.
 
-=== Filter method ===
+#### Filter method
 
 When you activate the plugin, it installs a content filter into
 wordpress. This filter looks for strings beginning with `!slideshow!`,
@@ -84,14 +85,16 @@ include more than one slideshow in succession, make sure they are
 defined on a new line for each call.
 
 Here's the syntax:
+
 	!slideshow!<id>!<url>[!<option1=val>;<option2=val>...]!
 
 Here's a few examples:
+
 	!slideshow!ss1!http://beta.zooomr.com/bluenote/feeds:rss/recent/!
 	!slideshow!ss2!http://beta.zooomr.com/bluenote/feeds:rss/recent/!limit=5!
 	!slideshow!ss3!http://beta.zooomr.com/bluenote/feeds:rss/recent/!limit=5;reverse!
 
-=== From php (your theme templates) ===
+#### From php (your theme templates)
 
 The `DGE_SlideShow` function takes three parameters. The first is the
 unique id for your slideshow, followed by the url of the desired feed,
@@ -100,35 +103,41 @@ string with the necessary javascript and html to set up the slideshow,
 so just `echo` it.
 
 For example:
+
 	// From version 0.3 and above
 	echo DGE_SlideShow('ss1', 'http://beta.zooomr.com/bluenote/feeds:rss/recent/', array('limit'=>5,'reverse'=>1));
 
+== Options ==
 
-=== Options ===
+**limit**
 
-limit
-: Limits the number of images extracted from the feed. Default is 0,
+* Limits the number of images extracted from the feed. Default is 0,
   implying no limit, or everything in the feed.
 
-preset
-: Applies the options defined in the named preset, before overriding
+**preset**
+
+* Applies the options defined in the named preset, before overriding
   them with any other options passed.
 
-reverse
-: This option doesn't need any value. Just by being present, it tells
+**reverse**
+
+* This option doesn't need any value. Just by being present, it tells
   the plugin to reverse the order of the images in the feed.
 
-timeout
-: Specify the time in minutes before the cached html is refreshed. Set
+**timeout**
+
+* Specify the time in minutes before the cached html is refreshed. Set
   the default in the options pane. It is 1 hour by default.
 
-xslt
-: Specify a particular xsl translation file
+**xslt**
 
-html
-: Assume input url is HTML, rather than XML. (As of v0.392)
+* Specify a particular xsl translation file
 
-=== Presets ===
+**html**
+
+* Assume input url is HTML, rather than XML. (As of v0.392)
+
+== Presets ==
 
 On the slideshow options page, you can set up presets to save you
 typing the same options in for different slideshow calls. Just give
@@ -145,13 +154,14 @@ Another example would be to add a shortcut for Zooomr favourites. Put
 `zooomrfaves` as the name, and `xslt=dge-slideshow/xsl/zooomrfaves.xsl`
 in the value field, again omitting the quotes. You could then invoke a
 slideshow of a Zooomr set with:
+
 	!slideshow!zfaves!http://www.zooomr.com/photos/davee/favorites/!preset=zooomrfaves!
 
 == History ==
 
 [Full changelog here](http://dev.wp-plugins.org/log/dge-slideshow/)
 
-=== changes in 0.4 ===
+#### changes in 0.4
 
  * Bug fixes, mostly for IE.
  * Added a menu bar for navigation etc.
@@ -163,14 +173,14 @@ slideshow of a Zooomr set with:
  * Structural changes under the hood to separate behaviour from content.
  * Easier to write new data sources, with introduction of data handlers.
 
-=== changes in 0.3 ===
+#### changes in 0.3
 
  * General clean-up and some bug fixes.
  * New `xslt` parameter to use custom XSL transformations.
  * Cleaned up, modularised XSL files.
  * New XSL files for Zooomr SmartSets, Zooomr favourites, and Flickr photosets.
 
-=== changes in 0.2 ===
+#### changes in 0.2
 
  * Optionally reverse the order of images in the feed.
  * Security enhancements.
@@ -179,7 +189,7 @@ slideshow of a Zooomr set with:
  * Presets allow quick changing of settings across several slideshows.
  * New options to influence image size, and skip default css rules.
 
-=== 0.1 ===
+#### 0.1
 
  * Flickr or Zoomr feeds
  * Displays thumbnails of images in the feed.
@@ -189,18 +199,20 @@ slideshow of a Zooomr set with:
 
 == Plans ==
 
-=== For v0.5 and above ===
+#### Before we reach 0.5
 
-In no particular order:
+ * auto filters to select a preset when source matches particular regex.
+ * show image title somewhere
+ * Event handler to allow changing slides with left and right arrow keys.
+ * Optionally display position in sequence and/or total images.
+
+#### After 0.5
+
  * set up inlinerss settings like XSLT path automatically
  * warn if cache directory isn't set up properly.
- * auto filters to select a preset when source matches particular regex.
  * abstraction of the back end so we don't rely on DGE_InlineRSS calls.
- * show image title somewhere
  * auto generation of slideshow id
  * Next/previous 5 or some sort of paging
  * Optionally use flickr or zooomr api for speed
- * Event handler to allow changing slides with left and right arrow keys.
- * Optionally display position in sequence and/or total images.
  * Fading transitions
  * Pull multiple feeds into one slideshow
