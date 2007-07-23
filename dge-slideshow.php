@@ -2,19 +2,13 @@
 /*
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
-Description: Turns online images (e.g. Flickr or Zooomr image feeds) into a slideshow. Fairly flexible, due to use of XSLT. Requires <a href="http://dev.wp-plugins.org/wiki/dge-inlinerss">DGE_InlineRSS</a> 0.93.
+Description: Turns a collection of images (e.g. Flickr or Zooomr image feed) into a javascript-based slideshow within a Wordpress post or page. Requires <a href="http://wordpress.org/extend/plugins/dge-inlinerss/">DGE_InlineRSS</a> 0.93 or greater.
 Version: 0.4
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
 
-// This is the main slideshow function that does the real work. See
-// dge_ss_contentFilter() below for what to put in the $params
-// array. Just use corresponding keys and values in $params to get the
-// same result, e.g.
-// 
-// DGE_SlideShow('ss1','http://blah.com/feed', array('limit'=>5));
-//
+// See readme.txt for how to call this function
 function DGE_SlideShow($ssid, $url, $params=array())
 {
     // Steal these settings from inlinerss
@@ -168,23 +162,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 //
 // with the rss feed reformatted for the slideshow javascript.
 // 
-// Parameters:
-//  <id>   Required field. Must be unique for each different
-//         slideshow.
-//  <url>  Required field. The url of the image feed.
-//  limit=<number>
-//         Optional field. Limits the number of images
-//         displayed. Default is 0, indicating no limit.
-//  preset=<preset name>
-//         Optional field. Applies the options defined in the named
-//         preset, before overriding them with any other options
-//         passed.
-//  reverse
-//         Optional field. Reverses the order of the images in the
-//         feed. Default is to not reverse the feed.
-//  timeout=<minutes>
-//         Optional field. The time in minutes before the cached html
-//         is refreshed. Default is 60 minutes.
+// See readme.txt for more information.
 function dge_ss_contentFilter($content = '')
 {
     $find[] = "//";
