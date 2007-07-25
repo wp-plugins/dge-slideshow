@@ -9,6 +9,7 @@
 }
 .ss-container img {
 	margin:0;
+	border:0;
 }
 .ss-container div.ss-wrapper {
 	background-color:#73A0C5;
@@ -46,7 +47,7 @@
 	margin:0 auto;
 	padding:2px;
 }
-.ss-menu ul {
+.ss-container .ss-menu ul {
 	height:16px;
 	margin: 0;
 	padding: 0;
@@ -110,14 +111,15 @@ li.ss-minimise:hover div { background-position: -112px 16px; }
 	margin:0 -190px;
 	bottom:0;
 }
-.ss-thumbs ul {
+.ss-container .ss-thumbs ul {
 	height: 77px;
 	margin: 0;
 	padding: 0;
 }
-.ss-thumbs li {
+.ss-container .ss-thumbs li {
 	list-style-type: none;
 	float: left;
+	margin: 0;
 }
 .ss-thumbs li.hide {
 	display:none;
@@ -143,4 +145,13 @@ li.ss-minimise:hover div { background-position: -112px 16px; }
 }
 .ss-thumbs li.after-selected div {
 	border-left:0 none;
+}
+
+/* --- fixes to cancel out default wordpress theme --- */
+
+.ss-container ul li:before {
+	content:'';
+}
+.ss-container .ss-wrapper ul {
+	text-indent: 0;
 }
