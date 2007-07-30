@@ -132,6 +132,10 @@ li.ss-minimise:hover div { background-position: -112px 16px; }
 	cursor:pointer;
 	border:1px solid #73a0c5;
 }
+.ss-preview img {
+	width:75px;
+	height:75px;
+}
 .ss-thumbs li div.ss-slide {
 	display:none;
 }
