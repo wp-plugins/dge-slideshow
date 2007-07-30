@@ -1,16 +1,16 @@
 === DGE_Slideshow ===
 Tags: slideshow, zooomr, flickr, xsl, xslt, javascript, dhtml, images
 Contributors: delcock
-Requires at least: 2.0
-Tested up to: 2.1
+Requires at least: 2.0?
+Tested up to: 2.2
 Stable tag: 0.4
 
 Turns a collection of images (e.g. Flickr or Zooomr image feed) into a javascript-based slideshow within a Wordpress post or page.
 
 == Description ==
 
-The plugin takes the source (e.g. RSS feed), passes it through XSLT
-via the
+The plugin takes an image source (e.g. RSS feed or web page), passes
+it through XSLT via the 
 [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/)
 plugin, then uses javascript and css in the client to do the actual
 slideshow.
@@ -19,8 +19,8 @@ Because of the use of XSLT, it's fairly flexible, allowing new image
 sources to be made available quickly.
 
 It's still under development, but working nicely on Firefox 1.5, 2.0,
-IE 6 (Win). Please feel free to submit bugs and suggest features by
-posting questions etc on the
+IE 6 (Win) and 7. Please feel free to submit bugs and suggest features
+by posting questions etc on the
 [home page](http://dave.stufftoread.net/slideshow/).
 
 == Installation ==
