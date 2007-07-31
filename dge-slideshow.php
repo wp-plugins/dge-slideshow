@@ -3,7 +3,7 @@
 Plugin Name: DGE_SlideShow
 Plugin URI: http://dave.stufftoread.net/slideshow/
 Description: Turns a collection of images (e.g. Flickr or Zooomr image feed) into a javascript-based slideshow within a Wordpress post or page. Requires <a href="http://wordpress.org/extend/plugins/dge-inlinerss/">DGE_InlineRSS</a> 0.93 or greater.
-Version: 0.4
+Version: 0.41
 Author: Dave E
 Author URI: http://dave.stufftoread.net/
 */
@@ -33,14 +33,36 @@ function DGE_SlideShow($ssid, $url, $params=array())
 
     // First up must be a check for a preset so that other parameters
     // passed to this function can override the preset.
-    if (array_key_exists('preset', $params))
+    if ($presets = get_option('dge_ss_presets'))
     {
-	if (($presets = get_option('dge_ss_presets')) &&
-	    ($preset = $presets[$params['preset']]))
+	$presetName = '';
+
+	// Look for preset name in the parameters
+	if (array_key_exists('preset', $params))
+	{
+	    $presetName = $params['preset'];
+	}
+
+	// otherwise look for an auto preset
+	else if ($autoPresets = get_option('dge_ss_auto_presets'))
+	{
+	    foreach ($autoPresets as $regexp => $pn)
+		if (preg_match($regexp, $url))
+		{
+		    $presetName = $pn;
+		    break;
+		}
+	}
+
+	// Find the preset and merge those settings with the function
+	// parameters. Funciont parameters take precedence over preset
+	// parameters.
+	if ($presetName && ($preset = $presets[$presetName]))
 	{
 	    $params = array_merge($preset, $params);
 	}
     }
+
     if (array_key_exists('timeout', $params))
 	$timeout = intval($params['timeout']);
     if (array_key_exists('reverse', $params))
@@ -281,6 +303,8 @@ function dge_ss_subpanel()
 {
     $presets = get_option('dge_ss_presets');
     if (!$presets) $presets = array();
+    $autoPresets = get_option('dge_ss_auto_presets');
+    if (!$autoPresets) $autoPresets = array();
 
     // ----------------------------------------------------------------
     // PARSE $_POST PARAMETERS
@@ -365,6 +389,59 @@ function dge_ss_subpanel()
 	{
 	    update_option('dge_ss_presets', $presets);
 	}
+
+	// ------------------------------------------------------------
+	// AUTO PRESETS
+	// ------------------------------------------------------------
+	$updateAutoPresets = 0;
+	// Check for new auto presets
+	if ($_POST['autop_new_re']!='' && $_POST['autop_new_val']!='')
+	{
+	    $regex = stripslashes($_POST['autop_new_re']);
+	    $value = $_POST['autop_new_val'];
+	    if (array_key_exists($regex, $autoPresets))
+	    {
+		$updateText .= "<p><strong>Auto preset with regexp '$regex' already exists. Not updated.</strong></p>\n";
+	    }
+	    else
+	    {
+		$autoPresets[$regex] = $value;
+		$updateText .= "<p>New auto preset with regexp '$regex' added.</p>\n";
+		$updateAutoPresets = 1;
+	    }
+	}
+	// Check for updates to existing auto presets.
+	$autoPresetI = 0;
+	foreach ($autoPresets as $regex=>$preset)
+	{
+	    $postkeyRE = "autop_upd_re_$autoPresetI";
+	    $postkeyVal = "autop_upd_val_$autoPresetI";
+	    if ((array_key_exists($postkeyRE,$_POST) && stripslashes($_POST[$postkeyRE]) != $regex) ||
+		(array_key_exists($postkeyVal,$_POST) && $_POST[$postkeyVal] != $preset))
+	    {
+		$updateRE = stripslashes($_POST[$postkeyRE]);
+		$updateVal = $_POST[$postkeyVal];
+		if ($updateRE == '' || $updateVal == '')
+		{
+		    unset($autoPresets[$regex]);
+		    $updateText .= "<p>Auto preset with regexp '$regex' removed.</p>\n";
+		}
+		else
+		{
+		    unset($autoPresets[$regex]); // ditch the old one completely
+		    $autoPresets[$updateRE]=$updateVal;
+		    $updateText .= "<p>Auto preset updated.</p>\n";
+		}
+		$updateAutoPresets = 1;
+	    }
+	    $autoPresetI++;
+	}
+	// Do all updates to the auto presets in one go.
+	if ($updateAutoPresets)
+	{
+	    update_option('dge_ss_auto_presets', $autoPresets);
+	}
+
 	// Output $updateText
 	if ($updateText != '')
 	    echo "<div class=\"updated\">\n$updateText</div>";
@@ -418,6 +495,36 @@ if ($presets && count($presets)>0)
           <td colspan="2"><input type="text" size="50" name="pre_new_value"/></td>
         </tr>
     </table></div>
+
+    <h3>Auto Presets</h3>
+    <div>
+    <p>With auto presets you can automatically apply a preset when a slideshow url matches any given regular expression.</p>
+<table>
+<?php
+if ($autoPresets && count($autoPresets)>0)
+{
+    echo "        <tr><td colspan=\"3\"><b>Existing Auto Presets</b></td><tr>\n";
+    echo "        <tr><td colspan=\"3\">To remove an existing preset, just delete the settings in either etext field.</td></tr>\n";
+    $i = 0;
+    foreach ($autoPresets as $regexp=>$presetName)
+    {
+	echo "      <tr><td><input type=\"text\" name=\"autop_upd_re_$i\" value=\"$regexp\"/></td>";
+	echo "<td><input type=\"text\" name=\"autop_upd_val_$i\" value=\"$presetName\"></td></tr>\n";
+	$i++;
+    }
+}
+?>
+        <tr><td colspan="3"><b>Add auto preset</b></td><tr>
+        <tr>
+          <td>Regexp</td>
+          <td colspan="2"><input type="text" name="autop_new_re"/></td>
+	</tr>
+        <tr>
+          <td>Preset</td>
+          <td colspan="2"><input type="text" name="autop_new_val"/></td>
+        </tr>
+    </table></div>
+
     <div class="submit">
       <input type="submit" name="info_update" value="Update options &raquo;" />
     </div>
@@ -429,7 +536,7 @@ if ($presets && count($presets)>0)
 function dge_ss_activate()
 {
     // This is version...
-    $nversion = 0.4; // (n for new)
+    $nversion = 0.41; // (n for new)
     // Get the previous version
     $pversion = get_option('dge_ss_version');
 

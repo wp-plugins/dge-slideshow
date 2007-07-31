@@ -46,9 +46,8 @@ by posting questions etc on the
 * Javascript.
 * [DGE_InlineRSS](http://wordpress.org/extend/plugins/dge-inlinerss/)
   plugin version 0.93 or greater.
-* Only tested with Wordpress 2.0 and 2.1. I don't know if it'll work
+* Only tested with Wordpress 2.0 and above. I don't know if it'll work
   with earlier versions.
-* PHP 5.
 
 == Examples ==
 
@@ -157,6 +156,52 @@ slideshow of a Zooomr set with:
 
 	!slideshow!zfaves!http://www.zooomr.com/photos/davee/favorites/!preset=zooomrfaves!
 
+== Auto Presets ==
+
+With auto presets you can specify a preset name to apply when the url
+of a slideshow matches a regular expression. For example, you might
+want to always apply the preset 'zooomrset' when the url looks like a
+Zooomr smart set. To do this, go to the Slideshow page in the
+wordpress options, and add a new auto preset. As of this writing, a
+Zooomr preset url looks like this:
+
+	http://www.zooomr.com/photos/somebody/sets/1234/
+
+So I would add an auto preset with something like this in the Regexp
+field:
+
+	/zooomr.*sets/
+
+and, assuming I already set up the 'zooomrset' preset, I would just
+add `zooomrset` into the Preset field. Now whenever I set up a new
+slideshow for a zooomr smartset, it will automatically be set up with
+the correct XSL translations.
+
+I can still override anything in the preset, or even request a
+different preset, like so:
+
+	!slideshow!ss1!http://www.zooomr.com/photos/jeff/sets/2468/!timeout=0!
+	!slideshow!ss1!http://www.zooomr.com/photos/geoff/sets/1357/!preset=otherzooomrset!
+
+These both match the auto preset above. The first one will trigger the
+auto preset, and also have a timeout of 0. The second one would have
+triggered the auto preset, but it is overruled by a specific preset.
+
+== Styling ==
+
+As much of the layout of the slideshow as possible has been kept
+safely away from the code. There are many CSS classes used to convey
+state information, like playing, paused, maximised etc. The only time
+the javascript takes over and explicitly modifies sizes and positions
+is when maximising. Even then it will take existing sizes into account
+and attempt to maximise correctly, maintaining any of your styles.
+
+At some point, when these classes have settled down, the will be
+documented here. For now, please just have a look through the css
+provided, and the html code that the plugin generates. I would
+recommend using the [Firebug](http://www.getfirebug.com/) plugin for
+Firefox to watch how css classes are applied and removed during use.
+
 == License ==
 
 This work is licensed under a [Creative Commons
@@ -165,6 +210,10 @@ Attribution-Noncommercial-Share Alike 2.5 License](http://creativecommons.org/li
 == History ==
 
 [Full changelog here](http://dev.wp-plugins.org/log/dge-slideshow/)
+
+#### recent changes
+
+ * Added 'auto presets'
 
 #### changes in 0.4
 
@@ -206,7 +255,6 @@ Attribution-Noncommercial-Share Alike 2.5 License](http://creativecommons.org/li
 
 #### Before we reach 0.5
 
- * auto filters to select a preset when source matches particular regex.
  * show image title somewhere
  * Event handler to allow changing slides with left and right arrow keys.
  * Optionally display position in sequence and/or total images.
