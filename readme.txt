@@ -214,6 +214,7 @@ Attribution-Noncommercial-Share Alike 2.5 License](http://creativecommons.org/li
 #### recent changes
 
  * Added 'auto presets'
+ * show image title. can be easily hidden with css.
 
 #### changes in 0.4
 
@@ -255,7 +256,6 @@ Attribution-Noncommercial-Share Alike 2.5 License](http://creativecommons.org/li
 
 #### Before we reach 0.5
 
- * show image title somewhere
  * Event handler to allow changing slides with left and right arrow keys.
  * Optionally display position in sequence and/or total images.
 
