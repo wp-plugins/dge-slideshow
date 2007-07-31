@@ -46,6 +46,7 @@ function DGE_Paginator(nodeId, settings)
 		    switch (child.getAttribute && child.getAttribute('rel'))
 		    {
 		    case 'ss-menu': this.menu = child; break;
+		    case 'ss-title': this.titleNode = child; break;
 		    case 'ss-display': this.displayNode = child; break;
 		    case 'ss-thumbs': this.thumbs = child; break;
 		    }
@@ -148,7 +149,7 @@ DGE_Paginator.prototype.maximise = function()
     this.node.style.top = 0;
     this.node.style.left = 0;
     // Refit the display node
-    this.displayNode.style.height = (windowHeight - DGE_getHeight(this.menu) - DGE_getHeight(this.thumbs) - 15) + 'px';
+    this.displayNode.style.height = (windowHeight - DGE_getHeight(this.menu) - DGE_getHeight(this.thumbs) - DGE_getHeight(this.titleNode) - 15) + 'px';
     // Redisplay and sort out new aspect ratios etc.
     this.refreshDisplay();
 }
@@ -294,11 +295,13 @@ DGE_Paginator.prototype.undisplay = function()
         this.displayNode.removeChild(this.displayNode.firstChild);
 }
 
-DGE_Paginator.prototype.display = function(node)
+DGE_Paginator.prototype.display = function(node, title)
 {
     this.undisplay();
     this.displayNode.appendChild(node);
     DGE_revokeClass(this.displayNode, 'loading');
+    if (title == '') title = '&nbsp;';
+    this.titleNode.innerHTML = '<p>'+title+'</p>';
     // Resume playing if we got stuck waiting for an image to load
     this.clearWaiting();
 }
@@ -350,34 +353,24 @@ DGE_PaginatorPage.prototype.showPreview = function(relativePos)
     // Apply relative position classes
     if (relativePos==0)
     {
-//	DGE_revokeClass(this.liNode, 'before-selected');
-//	DGE_revokeClass(this.liNode, 'after-selected');
-//	DGE_applyClass(this.liNode, 'selected');
 	this.liNode.className = 'selected';
     }
     else
     {
-//	DGE_revokeClass(this.liNode, 'selected');
 	if (relativePos<0)
 	{
-//	    DGE_revokeClass(this.liNode, 'after-selected');
-//	    DGE_applyClass(this.liNode, 'before-selected');
 	    this.liNode.className = 'before-selected';
 	}
 	else
 	{
-//	    DGE_revokeClass(this.liNode, 'before-selected');
-//	    DGE_applyClass(this.liNode, 'after-selected');
 	    this.liNode.className = 'after-selected';
 	}
 	// make sure it's loading in the background.
 	this.pageHandler.preload();
     }
     // make sure we don't wipe out loading class
-//    if (this.loading()) DGE_applyClass(this.liNode, ' loading');
     if (this.pageHandler.loading()) this.liNode.className += ' loading';
 
-//    this.liNode.className = 'show';
     this.pageHandler.previewVisible();
 }
 

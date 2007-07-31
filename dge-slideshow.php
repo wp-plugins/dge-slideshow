@@ -17,7 +17,6 @@ function DGE_SlideShow($ssid, $url, $params=array())
 
     // Some other variables.
     $xsltParams = array();
-    $xsltParams['ssid'] = $ssid;
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
     $stage1xsl = "dge-slideshow/rssfeed.xsl";
@@ -150,6 +149,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
 	<li class=\"ss-minimise\"><div><span>minimise</span></div></li>
       </ul>
     </div>
+    <div class=\"ss-title\" rel=\"ss-title\"><p>&nbsp;</p></div>
     <div class=\"ss-display\" rel=\"ss-display\"><p></p></div>
     <div class=\"ss-thumbs\" rel=\"ss-thumbs\"><ul>
       $output

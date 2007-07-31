@@ -26,6 +26,13 @@
 	height: 100%; /* IE5/Win */
 	h\eight: auto; /* IE6 IE5/Mac */
 }
+.ss-container .ss-title p {
+	margin: 0 2px;
+	padding: 0;
+	text-align:center;
+	background:#cfcfff;
+	color:#505060;
+}
 .ss-container div.ss-display {
 	margin:0 2px 77px;
 	background: #e5e6e7 url("img/loading.png") no-repeat center;
@@ -78,7 +85,7 @@
 	display:none;
 }
 li.ss-play div, li.ss-pause div { margin: 0 4px; }
-li.ss-maximise div, li.ss-maximise div { margin: 0 0 0 4px; }
+li.ss-maximise div, li.ss-minimise div { margin: 0 0 0 4px; }
 
 li.ss-first div { background-position: 0px 0px; }
 li.ss-prev div  { background-position: -16px 0px; }

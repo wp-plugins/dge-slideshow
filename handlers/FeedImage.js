@@ -28,9 +28,9 @@ FeedImage.prototype.prepare = function(slideshow, liNode, index)
     this.link.setAttribute('href',link.getAttribute('href'));
 
     // find the image title and set it in our image element.
-    var title = liNode.getElementsByTagName('img').item(0).getAttribute('title');
-    this.imageEl.setAttribute('title', title);
-    this.imageEl.setAttribute('alt', title);
+    this.imageTitle = liNode.getElementsByTagName('img').item(0).getAttribute('title');
+    this.imageEl.setAttribute('title', this.imageTitle);
+    this.imageEl.setAttribute('alt', this.imageTitle);
 
     // Defer setting the image source until we get a display or
     // preload call
@@ -78,7 +78,7 @@ FeedImage.prototype.display = function()
 	this.wrapper.style.width = this.imageEl.style.width;
 	this.wrapper.style.height = this.imageEl.style.height;
 
-	this.slideshow.display(this.wrapper);
+	this.slideshow.display(this.wrapper, this.imageTitle);
     }
     else
     {
