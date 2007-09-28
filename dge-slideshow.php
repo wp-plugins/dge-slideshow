@@ -16,11 +16,11 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $cachepath = get_option('dge_irss_cachepath');
 
     // Some other variables.
-    $xsltParams = array();
     $inlineRSSname = 'dge-ss-'.$ssid;
-    $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
+    $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.ss';
     $stage1xsl = "dge-slideshow/rssfeed.xsl";
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
+    $stage2params = array();
 
     // defaults
     $play = intval(get_option('dge_ss_def_play'));
@@ -65,9 +65,9 @@ function DGE_SlideShow($ssid, $url, $params=array())
     if (array_key_exists('timeout', $params))
 	$timeout = intval($params['timeout']);
     if (array_key_exists('reverse', $params))
-	$xsltParams['order'] = "descending";
+	$stage2params['order'] = "descending";
     if (array_key_exists('limit', $params))
-	$xsltParams['limit'] = $params['limit'];
+	$stage2params['limit'] = $params['limit'];
     if (array_key_exists('delay', $params))
 	$delay = $params['delay'];
     if (array_key_exists('repeat', $params))
@@ -102,15 +102,10 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // inlineRSS and create a new cache file.
     if ( $exists == FALSE or $age > $timeout * 60 )
     {
-	$stage1xml = "<?xml version=\"1.0\"?>\n";
-	$stage1xml .= DGE_InlineRSS($inlineRSSname, $url,
-				    array('timeout'=>0,
-					  'html'=>$html,
-					  'xslt'=>$stage1xsl));
-	$stage2xml = DGE_InlineRSS($inlineRSSname, '',
-				   array('xml'=>$stage1xml,
-					 'xslt'=>$stage2xsl),
-				   $xsltParams);
+	$input = dge_irss_fetch($url);
+	$stage1xml = "<?xml version=\"1.0\"?>\n" . dge_irss_translate($input, $stage1xsl, $html, array());
+	$stage2xml = dge_irss_translate($stage1xml, $stage2xsl, false, $stage2params);
+
         if (empty($stage2xml))
 	{
 	    if ($exists == FALSE)
