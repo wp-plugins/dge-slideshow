@@ -20,7 +20,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     $xsltParams['ssid'] = $ssid;
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.html';
-    $stage1xsl = "dge-slideshow/rssfeed.xsl";
+    $stage1xsl = "dge-slideshow/xsl/rssfeed.xsl";
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
 
     // defaults
