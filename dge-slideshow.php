@@ -18,7 +18,7 @@ function DGE_SlideShow($ssid, $url, $params=array())
     // Some other variables.
     $inlineRSSname = 'dge-ss-'.$ssid;
     $cachefile = ABSPATH . $cachepath . '/' . $cacheprefix . $inlineRSSname . '.ss';
-    $stage1xsl = "dge-slideshow/rssfeed.xsl";
+    $stage1xsl = "dge-slideshow/xsl/rssfeed.xsl";
     $stage2xsl = "dge-slideshow/dge-slideshow.xsl";
     $stage2params = array();
 
