@@ -21,7 +21,7 @@ sources to be made available quickly.
 It's still under development, but working nicely on Firefox 1.5, 2.0,
 IE 6 (Win) and 7. Please feel free to submit bugs and suggest features
 by posting questions etc on the
-[home page](http://dave.stufftoread.net/slideshow/).
+[home page](http://dave.coolhandmook.com/slideshow/).
 
 == Installation ==
 
@@ -53,10 +53,10 @@ by posting questions etc on the
 == Examples ==
 
 The latest stable version with various applications of the slideshow
-is [here](http://dave.stufftoread.net/slideshow/).
+is [here](http://dave.coolhandmook.com/slideshow/).
 
 The latest trunk is up and (probably) running
-[here](http://dave.stufftoread.net/testwp/).
+[here](http://dave.coolhandmook.com/testwp/).
 
 == Usage ==
 
