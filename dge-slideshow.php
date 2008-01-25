@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: DGE_SlideShow
-Plugin URI: http://dave.stufftoread.net/slideshow/
+Plugin URI: http://dave.coolhandmook.com/slideshow/
 Description: Turns a collection of images (e.g. Flickr or Zooomr image feed) into a javascript-based slideshow within a Wordpress post or page. Requires <a href="http://wordpress.org/extend/plugins/dge-inlinerss/">DGE_InlineRSS</a> 0.94 or greater.
 Version: 0.41
 Author: Dave E
-Author URI: http://dave.stufftoread.net/
+Author URI: http://dave.coolhandmook.com/
 */
 
 // See readme.txt for how to call this function
